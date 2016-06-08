@@ -1,0 +1,15 @@
+<% provide(:title, 'Procedures') %>
+
+<div class="col-md-8">
+
+  <%= markdown File.open(Rails.root + "public/information/procedures.md", 'r').read %>
+
+</div>
+
+<div class="col-md-4">
+  <ul class="list-group" style="position:fixed;padding-right:50px;">
+    <li class="list-group-item">              
+      <%= markdown File.open(Rails.root + "public/information/procedures_contents.md", 'r').read %>
+    </li>
+  </ul>
+</div>

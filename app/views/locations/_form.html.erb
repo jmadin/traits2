@@ -1,0 +1,53 @@
+<%= form_for(@location) do |f| %>
+
+	<%= render 'shared/error_messages', object: @location %>
+
+	<%= hidden_field_tag :cor, params[:cor] %>
+	<%= hidden_field_tag :tra, params[:tra] %>
+	<%= hidden_field_tag :res, params[:res] %>
+
+	<div class="form-group">
+		<%= f.label :location_name %>
+		<%= f.text_field :location_name, :placeholder => "Required...", class: "form-control" %>
+	</div>
+
+	<div class="form-group">
+		<%= f.label :latitude %>
+		<p><small>Decimal latitude and longitude can easily be copied directly from <%= link_to "Google Maps", "http://maps.google.com", target: "_blank" %>. Find and click on your location on the map, and the latitude and longitude will appear in grey under the search bar at the top left of the page.</small></p>
+		<%= f.text_field :latitude, :placeholder => "Required (decimal degrees)...", class: "form-control" %>
+	</div>
+
+	<div class="form-group">
+		<%= f.label :longitude %>
+		<%= f.text_field :longitude, :placeholder => "Required (decimal degrees)...", class: "form-control" %>
+	</div>
+	
+	<div class="form-group">
+		<%= f.label :location_description %>
+		<%= f.text_area :location_description, class: "form-control" %>
+	</div>
+
+  <div class="form-group">
+    <% if current_user.admin? %>
+      <%= f.label :enterer %>
+      <% if f.object.id.present? %>
+        <%= f.select :user_id, User.where(:contributor => true).collect {|a| ["#{a.first_name} #{a.last_name}", a.id]}, {}, class: "form-control" %>
+      <% else %>
+        <%= f.select :user_id, User.where(:contributor => true).collect {|a| ["#{a.first_name} #{a.last_name}", a.id]}, {:selected => current_user.id}, class: "form-control" %>
+      <% end %>
+    <% else %>
+      <%#= current_user.first_name %>
+      <%= f.hidden_field :user_id, :value => current_user.id %>
+    <% end %>
+  </div>
+
+  <% if current_user.editor? %>
+    <div class="form-group">
+      <%= f.label "Approved?" %>
+      <%= f.check_box :approved %>
+    </div>
+  <% end %>
+
+	<%= f.submit "Submit", class: "btn btn-primary btn-lg" %>
+
+<% end %>

@@ -1,0 +1,90 @@
+<% provide(:title, @methodology.methodology_name) %>
+
+<div class="col-md-12">
+  <h1>
+    <% if not @methodology.approved %>
+      <span class="glyphicon glyphicon-bell" data-toggle="tooltip" data-placement="top" title="Pending approval"></span>
+    <% end %>
+    Methodology: <%= @methodology.methodology_name %>
+  </h1>
+</div>
+
+<div class="col-md-12">
+
+  <p>
+    <strong>ID:</strong>
+    	<%= @methodology.id %>
+  </p>
+
+  <%#= render "shared/description", :description => @methodology.methodology_description %>
+  <p>
+    <strong>Description:</strong>
+    <% if not @methodology.methodology_description.empty? %>
+      <button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseDescription" aria-expanded="false" aria-controls="collapseDescription">Show</button>
+
+      <div class="collapse" id="collapseDescription">
+        <ul class="list-group">
+          <li class="list-group-item">             
+            <%= markdown @methodology.methodology_description %>
+          </li>
+        </ul>
+      </div>
+    <% else %>
+      <font style="color:lightgrey;">Not entered</font>
+    <% end %>
+  </p>
+
+  <p>
+    <strong>Used for traits:</strong>
+    <% if not @traits.empty? %>
+        <ul>
+          <% @traits.each do |trait| %>
+            <li>
+              <%= link_to trait.trait_name, trait %>
+            </li>
+          <% end %>
+        </ul>
+    <% else %>
+      <font style="color:lightgrey;">None entered</font>
+    <% end %>
+  </p>
+
+
+  <p>
+    <strong>Added by:</strong>
+    <% if @methodology.user %>
+      <%= @methodology.user.first_name %> <%= @methodology.user.last_name %>
+    <% end %>
+  </p>
+
+  <p>
+    <div class="btn-group">
+      <%= link_to 'Back', methodologies_path, class: "btn btn-xs btn-default" %>
+      <% if logged_in? && current_user.contributor? %>
+        <%= link_to 'Edit', edit_methodology_path(@methodology), class: "btn btn-xs btn-default" %>
+      <% end %>
+    </div>
+    <% if logged_in? && current_user.admin? %>
+      <div class="btn-group pull-right">
+        <%= link_to 'Delete', @methodology, method: :delete, data: { confirm: 'Delete entire methodology, including observations and measurements?' }, class: "btn btn-xs btn-danger" %>
+      </div>
+    <% end %>
+  </p>
+
+</div>
+
+<div class="col-md-12">
+
+  <h3>Observations using this methodology</h3>
+
+  <% if @observations.empty? %>
+    <%= render "shared/no_observations" %>
+  <% else %>
+
+  	<%= will_paginate @observations, :inner_window => 1, :outer_window => 0 %>
+  	<%= render "shared/observations" %>
+  	<br>
+  	<%= will_paginate @observations, :inner_window => 1, :outer_window => 0 %>
+
+  <% end %>
+</div>

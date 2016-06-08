@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Measurements Methodologies</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Measurement</th>
+      <th>Methodology</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @measurements_methodologies.each do |measurements_methodology| %>
+      <tr>
+        <td><%= measurements_methodology.measurement %></td>
+        <td><%= measurements_methodology.methodology %></td>
+        <td><%= link_to 'Show', measurements_methodology %></td>
+        <td><%= link_to 'Edit', edit_measurements_methodology_path(measurements_methodology) %></td>
+        <td><%= link_to 'Destroy', measurements_methodology, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Measurements methodology', new_measurements_methodology_path %>

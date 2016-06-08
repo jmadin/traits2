@@ -1,0 +1,94 @@
+<% provide(:title, 'Traits') %>
+
+<div class="col-md-9">
+  <%= render "shared/index_header" %>
+</div>
+
+
+<%= form_tag export_traits_path do %>
+
+  <div class="col-md-3">
+    <%= render "shared/download_options" %>
+  </div>
+
+  <div class="col-sm-12">
+
+  	<%= will_paginate @traits, :inner_window => 1, :outer_window => 0 %>
+
+		<% temp = [] %>
+    <% @traits.sort_by{ |h| [Traitclass.all.where(:id => h.traitclass_id).map(&:class_name) || "z", h.trait_name] }.each do |trait| %>
+			<% if temp != trait.traitclass %>
+				<% temp = trait.traitclass %>
+				<% if trait.traitclass.blank? %>
+					<h4>Unclassified</h4>
+					<ul class="list-group">
+				<% else %>
+					</ul>
+					<h4>
+						<% if trait.traitclass.contextual %>
+							<span class="glyphicon glyphicon-eye-open"></span>
+						<% end %>
+						<%= trait.traitclass.class_name %>
+					</h4>
+					<ul class="list-group">
+				<% end %>
+			<% end %>
+
+      <% if not trait.hide or (logged_in? && current_user.editor?) %>
+        <% if trait.hide %>
+          <li id="countlist" class="list-group-item disabled">             
+        <% else %>
+          <li id="countlist" class="list-group-item">             
+        <% end %>
+		
+  				<div class="row">
+  					<div class="col-sm-1" style="color:lightgrey;"><%= trait.id %></div>
+  					<div class="col-sm-5">  			    	
+              <% if not trait.approved %>
+                <span class="glyphicon glyphicon-bell" data-toggle="tooltip" data-placement="top" title="Pending approval"></span>
+              <% end %>
+              <%= link_to trait.trait_name, trait, 'data-no-turbolink' => true %>
+              <% if trait.hide %>
+                <span class="label label-danger" data-toggle="tooltip" data-placement="right" title="Trait only visible to Editors">hidden</span>
+              <% end %>
+  					</div>
+  				
+  					<div class="col-sm-3">
+  					</div>
+
+            <% if not params[:all] %>
+              <div id="countlist" class="col-sm-3">
+                <p class="pull-right">
+                  <%= render "shared/access_counts", :itemid1 => trait.id %>
+                  <%= check_box_tag "checked[]", trait.id %>
+                </p>
+              </div>
+            <% else %>
+              <div class="col-sm-3">
+                <p class="pull-right">
+                  <%= check_box_tag "checked[]", trait.id %>
+                </p>
+              </div>
+            <% end %>
+
+  		  	</div>
+  			</li>
+      <% end %>
+	  <% end %>
+
+    <br>
+    <%= will_paginate @traits, :inner_window => 1, :outer_window => 0 %>
+
+  </div>
+<% end %>
+
+
+<% if @traits.blank? %>
+  <div class="col-md-12">
+    <%= render "shared/no_observations" %>
+  </div>
+<% end %>
+
+<div class="col-sm-12">
+	Download full traits list as a <%= link_to "csv", traits_path(format: "csv", search: params[:search], page: params[:page], all: params[:all]) %>.
+</div>

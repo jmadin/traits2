@@ -1,0 +1,95 @@
+<% if @observations.empty? %>
+   <%= render "shared/no_observations" %>
+<% else %>
+	
+	<% temp = [] %>
+		
+	<div class="row">
+	  <div class="col-md-12">
+			<% mark = "" %>
+		  <% Trait.all.each do |trait| %>    
+		    
+				<% if not trait.traitclass or (trait.traitclass and not trait.traitclass.contextual) %>
+	      	<% if not trait.hide or (logged_in? && current_user.editor?) %>
+						<% if @observations.joins(:measurements).where("measurements.trait_id = ?", trait.id).size > 0 %>
+							
+							<% if temp != trait.traitclass %>
+								<% temp = trait.traitclass %>
+									<% if trait.traitclass.blank? %>
+										<h4>Unclassified</h4>
+										<ul class="list-group">
+									<% else %>
+			    					</ul>
+										<h4><%= trait.traitclass.class_name %></h4>
+										<ul class="list-group">
+									<% end %>
+							<% end %>
+
+			        <% if trait.hide %>
+			          <li class="list-group-item disabled">             
+			        <% else %>
+			          <li class="list-group-item">             
+			        <% end %>
+
+					  	<!-- <li class="list-group-item">							 -->
+								<div class="row">
+					        <div class="col-sm-1" style="color: lightgrey;">
+					        	<%= trait.id %>
+					        </div>
+									<div class="col-sm-4">
+
+										<%= link_to trait.trait_name, trait, 'data-no-turbolink' => true %>
+			              <% if trait.hide %>
+			                <span class="label label-danger" data-toggle="tooltip" data-placement="right" title="Trait only visible to Editors">hidden</span>
+			              <% end %>
+									</div>
+
+									<% grp = @observations.joins(:measurements).where("measurements.trait_id = ?", trait.id) %>
+
+									<div class="col-sm-6">
+										<% if grp.size > 1 %>
+											<div id="countlist">
+												<p>
+													<span class="label label-success" data-toggle="tooltip" data-placement="top" title="Number of public observations"><span class="glyphicon glyphicon-ok-circle" style="color:white;"></span> <span class="pubcount" data-itemid1=<%= @specie.id %> data-model1=<%= params[:controller] %> data-itemid2=<%= trait.id %> data-model2="traits"><span class="glyphicon glyphicon-refresh spinning"></span></span></span>
+
+													<% if logged_in? && current_user.contributor? %>
+														<span class="label label-danger" data-toggle="tooltip" data-placement="top" title="Number of public observations"><span class="glyphicon glyphicon-remove-circle" style="color:white;"></span> <span class="pricount" data-itemid1=<%= @specie.id %> data-model1=<%= params[:controller] %> data-itemid2=<%= trait.id %> data-model2="traits"><span class="glyphicon glyphicon-refresh spinning"></span></span></span>
+													<% end %>
+													&nbsp;observations
+												</p>
+											</div>
+										<% else %>
+
+											<% mea = grp.first.measurements.where(:trait_id => trait.id).first %>
+
+						          <% if mea.trait.traitvalues.present? %>
+						            <% traitvalue = mea.trait.traitvalues.where(:value_name => mea.value) %>
+						            <% if not traitvalue.empty? and traitvalue.first.value_description.present?  %>
+						              <span class="label label-primary" data-toggle="tooltip" data-placement="top" title="<%= traitvalue.first.value_description %>"><%= mea.value %></span>
+						            <% else %>
+						              <span class="label label-primary" data-toggle="tooltip" data-placement="top" title="No description"><%= mea.value %></span>
+						            <% end %>
+						          <% else %> 
+						            <%= mea.value %>
+						          <% end %> 
+
+						          <% if not mea.trait.traitvalues.present? and mea.standard.present? %>
+						            (<%= link_to mea.standard.standard_unit, standard_path(mea.standard_id) %>)
+						          <% end %>
+
+										<% end %>
+									</div>
+					  			<div class="col-sm-1">
+					          <div class="btn-group pull-right">
+					            <%= link_to 'Show', specie_trait_path(:specie_id => grp.first.specie_id, :id => trait.id), class: "btn btn-xs btn-default", 'data-no-turbolink' => true %>
+					          </div>
+					  			</div>
+					  		</div>
+							</li>
+						<% end %>
+					<% end %>
+				<% end %>
+			<% end %>
+		</div>
+	</div>
+<% end %>

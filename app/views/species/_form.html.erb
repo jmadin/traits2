@@ -1,0 +1,51 @@
+<%= form_for(@specie) do |f| %>
+
+  <%= render 'shared/error_messages', object: f.object %>
+
+
+	<div class="form-group">
+		<%= f.label :species_name %><br>
+		<%= f.text_field :specie_name, :placeholder => "Required...", class: "form-control" %>
+	</div>
+
+  <div class="form-group">
+    <%= f.label "aphia ID (marine species)" %><br>
+    <%= f.text_field :aphia_id, class: "form-control" %>
+  </div>
+
+	<div class="form-group">
+		<%= f.label :other_names %>
+	  <%= f.fields_for :synonyms do |syn| %>
+	  	<% render :partial => "synonym_fields", :locals => { :f => syn } %>
+	  <% end %>
+  <p><%= link_to_add_association "Add another name", f, :synonyms, class: "btn btn-default btn-xs" %></p>
+	</div>
+
+	<div class="form-group">
+		<%= f.label :description %><br>
+		<%= f.text_area :specie_description, class: "form-control" %>
+	</div>
+
+  <div class="form-group">
+    <% if current_user.admin? %>
+      <%= f.label :enterer %>
+      <% if f.object.id.present? %>
+        <%= f.select :user_id, User.where(:contributor => true).collect {|a| ["#{a.first_name} #{a.last_name}", a.id]}, {}, class: "form-control" %>
+      <% else %>
+        <%= f.select :user_id, User.where(:contributor => true).collect {|a| ["#{a.first_name} #{a.last_name}", a.id]}, {:selected => current_user.id}, class: "form-control" %>
+      <% end %>
+    <% else %>
+      <%= f.hidden_field :user_id, :value => current_user.id %>
+    <% end %>
+  </div>
+
+  <% if current_user.editor? %>
+    <div class="form-group">
+      <%= f.label "Approved?" %>
+      <%= f.check_box :approved %>
+    </div>
+  <% end %>
+  	
+	<%= f.submit "Submit", class: "btn btn-primary btn-lg" %>
+
+<% end %>

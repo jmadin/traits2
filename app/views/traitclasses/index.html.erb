@@ -1,0 +1,80 @@
+<% provide(:title, 'Trait Classes') %>
+
+
+<h1>Trait Classes</h1>
+
+<div class="btn-group pull-right">
+  <% if logged_in? and current_user.admin? %>  
+    <%= link_to "New Trait Class", new_traitclass_path, class: "btn btn-primary" %>
+  <% end %>
+</div>
+
+<br>
+<br>
+<p>These are the current classes under which traits can be grouped.</p>
+
+<ul class="list-group">
+
+  <li class="list-group-item">              
+    <div class="row">
+      <div class="col-md-1" style="color: lightgrey;">
+      </div>
+
+      <div class="col-md-2">
+        <strong>Name</strong>
+      </div>
+
+      <div class="col-md-4">
+        <strong>Description</strong>
+      </div>
+
+      <div class="col-md-3">
+        <strong>Traits</strong>
+      </div>
+
+      <div class="col-md-2">
+        <strong></strong>
+      </div>
+    </div>
+  </li>
+
+  <% @traitclasses.each do |traitclass| %>
+      <li class="list-group-item">              
+        <div class="row">
+          <div class="col-md-1" style="color: lightgrey;">
+            <%= traitclass.id %>
+          </div>
+
+          <div class="col-md-2">
+            <% if traitclass.contextual %>
+              <span class="glyphicon glyphicon-eye-open" data-toggle="tooltip" data-placement="top" title="Contextual"></span>
+            <% end %>
+            <%= traitclass.class_name %>
+          </div>
+
+          <div class="col-md-3">
+            <%= traitclass.class_description %>
+          </div>
+
+          <div class="col-md-1">
+          </div>
+
+          <div class="col-md-3">
+              <%= Trait.where(:traitclass => traitclass).length %>
+          </div>
+
+          <div class="col-md-2">
+            <div class="btn-group">
+              <%#= link_to 'Show', observation_path(issue.observation), class: "btn btn-xs btn-default" %>
+              <%= link_to 'Edit', edit_traitclass_path(traitclass), class: "btn btn-default btn-xs" %>
+              <% if logged_in? && current_user.editor? %>
+                <%= link_to 'Delete', traitclass, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-xs btn-danger" %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </li>
+    <% end %>   
+  </ul>
+</div>
+

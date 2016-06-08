@@ -1,0 +1,81 @@
+<% provide(:title, 'Standards') %>
+
+<div class="col-md-9">
+  <%= render "shared/index_header" %>
+</div>
+
+<%= form_tag export_standards_path do %>
+
+  <div class="col-md-3">
+    <%= render "shared/download_options" %>
+  </div>
+
+  <div class="col-sm-12">
+
+  	<%= will_paginate @standards, :inner_window => 1, :outer_window => 0 %>
+
+		<% temp = [] %>
+		<% @standards.each do |standard| %>
+			<% if temp != standard.standard_class %>
+				<% temp = standard.standard_class %>
+				<% if standard.standard_class.blank? %>
+					<h4>Uncategorised</h4>
+					<ul class="list-group">
+				<% else %>
+					</ul>
+					<h4>
+						<%= standard.standard_class %>
+					</h4>
+					<ul class="list-group">
+				<% end %>
+			<% end %>
+
+  		<li id="countlist" class="list-group-item">							
+				<div class="row">
+					<div class="col-sm-1" style="color:lightgrey;"><%= standard.id %></div>
+					<div class="col-sm-5">
+            <% if not standard.approved %>
+              <span class="glyphicon glyphicon-bell" title="Pending Approval"></span>
+            <% end %>
+			    	<%= link_to standard.standard_name, standard, 'data-no-turbolink' => true %>
+						(<%= standard.standard_unit %>)
+					</div>
+
+					<div class="col-sm-3">
+					</div>
+
+          <% if not params[:all] %>
+            <div id="countlist" class="col-sm-3">
+              <p class="pull-right">
+                <%= render "shared/access_counts", :itemid1 => standard.id %>
+                <%= check_box_tag "checked[]", standard.id %>
+              </p>
+            </div>
+          <% else %>
+            <div class="col-sm-3">
+              <p class="pull-right">
+                <%= check_box_tag "checked[]", standard.id %>
+              </p>
+            </div>
+          <% end %>
+				
+		  	</div>
+			</li>
+	  <% end %>
+    
+    <br>
+    <%= will_paginate @standards, :inner_window => 1, :outer_window => 0 %>
+  </div>
+
+<% end %>
+
+
+<% if @standards.blank? %>
+  <div class="col-md-12">
+    <%= render "shared/no_observations" %>
+  </div>
+<% end %>
+
+<div class="col-sm-12">
+  <p>Download full standards list as a <%= link_to "csv", standards_path(format: "csv", search: params[:search], page: params[:page], all: params[:all]) %>.</p>
+</div>

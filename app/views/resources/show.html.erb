@@ -1,0 +1,153 @@
+<% provide(:title, "Resource") %>
+
+<div class="col-md-12">
+  <h3>
+
+			<p>
+        <% if not @resource.approved %>
+          <span class="glyphicon glyphicon-bell" data-toggle="tooltip" data-placement="top" title="Pending approval"></span>
+        <% end %>
+
+			  <%= @resource.author %>
+				<% if @resource.year %>
+			  	(<%= @resource.year %>)
+				<% end %>
+			  <%= @resource.title %>.
+				<% if @resource.journal %>
+			  	<em><%= @resource.journal %></em>
+				<% end %>
+				<% if @resource.volume_pages %>
+			  	<%= @resource.volume_pages %>
+				<% end %>
+			</p>
+
+  </h3>
+</div>
+
+<div class="col-md-6">
+  <p>
+    <strong>ID:</strong>
+    	<%= @resource.id %>
+  </p>
+
+	<p>
+	  <strong>DOI:</strong>
+		<% if @resource.doi_isbn.present? %>
+	  	<%= link_to @resource.doi_isbn, "http://dx.doi.org/" + @resource.doi_isbn, :target => "_blank" %>
+		<% elsif @resource.resource_type == "paper" or @resource.resource_type.blank? %>
+			<span class="label label-danger">not added</span>
+		<% else %>
+			<span class="label label-success"><%= @resource.resource_type %></span>
+		<% end %>
+	</p>
+
+  <%= render "shared/description", :description => @resource.resource_description %>
+
+	<p>
+    <div class="btn-group">
+      <%= link_to 'Back', resources_path, class: "btn btn-xs btn-default" %>
+      <% if logged_in? && current_user.contributor? %>
+        <%= link_to 'Edit', edit_resource_path(@resource), class: "btn btn-xs btn-default" %>
+      <% end %>
+    </div>
+    <% if logged_in? && current_user.admin? %>
+      <div class="btn-group pull-right">
+        <%= link_to 'Delete', @resource, method: :delete, data: { confirm: 'Delete entire resource, including observations and measurements?' }, class: "btn btn-xs btn-danger" %>
+        <%= link_to 'Expunge', expunge_resource_path(@resource), data: { confirm: 'Delete all associated observations and measuerments for this resource?' }, class: "btn btn-xs btn-warning" %>
+        <%= link_to 'Update', update_resource_path(@resource), class: "btn btn-xs btn-success" %>
+      </div>
+    <% end %>
+	</p>
+
+</div>
+
+
+<% if not @locations.empty? and not @locations.map(&:id).include? 1 %>
+  <div class="col-md-6" data-no-turbolink>
+    <ul class="list-group">
+    <li class="list-group-item">              
+    <div id="map-canvas" class="map-container" data-no-turbolink></div> 
+    </li>
+    </ul>
+  </div>
+<% end %>
+
+<div class="col-md-12">
+
+	<h3>Observations from this resource</h3>
+
+  <% if logged_in? && current_user.contributor? %>
+    <div id="dupdetect">
+    <p>
+      <span class="dup" data-resourceid=<%= @resource.id %>></span>
+    </p>
+    </div>
+  <% end %>
+
+	<ul class="nav nav-tabs">
+		<% if params[:secondary] %>
+			<% @observations = @secondary %>
+		  <li role="presentation"><%= link_to 'Primary', resource_path(@resource) %></li>		
+		  <li role="presentation" class="active"><%= link_to 'Secondary', resource_path(@resource, secondary: true) %></li>
+	  <% else %>
+			<% @observations = @primary %>
+		  <li role="presentation" class="active"><%= link_to 'Primary', resource_path(@resource) %></li>		
+		  <li role="presentation"><%= link_to 'Secondary', resource_path(@resource, secondary: true) %></li>
+		<% end %>
+	</ul>
+
+	<br>
+
+	<% if @observations.empty? %>
+		<%= render "shared/no_observations" %>
+	<% else %>
+		<%= will_paginate @observations, :inner_window => 1, :outer_window => 0 %>
+		<%= render "shared/observations" %>
+		<br>
+		<%= will_paginate @observations, :inner_window => 1, :outer_window => 0 %>
+	<% end %>  
+
+</div>
+
+<script type="text/javascript">
+  var locations = <%= raw @locations.map {|i| [i.location_name.to_s, i.latitude.to_s, i.longitude.to_s, i.id.to_s] } %>;
+
+
+  var map = new google.maps.Map(document.getElementById('map-canvas'), {
+    zoom: 1,
+    center: new google.maps.LatLng(0, 155),
+    mapTypeId: google.maps.MapTypeId.SATELLITE,
+    streetViewControl: false
+  });
+
+  var opt = { maxZoom: 13 };
+  map.setOptions(opt);
+
+  var infowindow = new google.maps.InfoWindow();
+
+  var marker, i;
+  var bounds = new google.maps.LatLngBounds();
+
+  for (i = 0; i < locations.length; i++) {  
+    
+    var content = '<a data-no-turbolink="true" href="/locations/'+locations[i][3]+'">'+locations[i][0]+'</a>';
+    
+    marker = new google.maps.Marker({
+      position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+      map: map
+    });
+
+    bounds.extend(marker.getPosition());
+
+    google.maps.event.addListener(marker, 'click', function(marker, content) {
+      return function() {
+        infowindow.setContent(content);
+        infowindow.open(map, marker);
+      }
+    }(marker, content));
+
+  }
+  map.fitBounds(bounds);
+
+</script>
+

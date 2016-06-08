@@ -1,0 +1,34 @@
+<%= form_for(@precisiontype) do |f| %>
+
+  <%= render 'shared/error_messages', object: @precisiontype %>
+
+  <div class="form-group">
+    <%= f.label :precision_type_name %><br>
+    <%= f.text_field :precision_type_name, class: "form-control" %>
+  </div>
+  <div class="form-group">
+    <%= f.label :precision_type_description %><br>
+    <%= f.text_area :precision_type_description, class: "form-control" %>
+  </div>
+  <div class="form-group">
+    <%= f.label "has range?" %><br>
+    <%= f.check_box :has_range %>
+  </div>
+
+  <div class="form-group">
+    <% if current_user.admin? %>
+      <%= f.label :enterer %>
+      <% if f.object.id.present? %>
+        <%= f.select :user_id, User.where(:contributor => true).collect {|a| ["#{a.first_name} #{a.last_name}", a.id]}, {}, class: "form-control" %>
+      <% else %>
+        <%= f.select :user_id, User.where(:contributor => true).collect {|a| [a.first_name, a.id]}, {:selected => current_user.id}, class: "form-control" %>
+      <% end %>
+    <% else %>
+      <%= f.hidden_field :user_id, :value => current_user.id %>
+    <% end %>
+  </div>
+
+
+
+  <%= f.submit "Submit", class: "btn btn-primary btn-lg" %>
+<% end %>

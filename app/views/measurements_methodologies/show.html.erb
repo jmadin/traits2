@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Measurement:</strong>
+  <%= @measurements_methodology.measurement %>
+</p>
+
+<p>
+  <strong>Methodology:</strong>
+  <%= @measurements_methodology.methodology %>
+</p>
+
+<%= link_to 'Edit', edit_measurements_methodology_path(@measurements_methodology) %> |
+<%= link_to 'Back', measurements_methodologies_path %>

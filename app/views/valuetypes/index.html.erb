@@ -1,0 +1,77 @@
+<% provide(:title, 'Value Types') %>
+
+
+<h1>Value Types</h1>
+
+<div class="btn-group pull-right">
+  <% if logged_in? and current_user.admin? %>  
+    <%= link_to "New Value Types", new_valuetype_path, class: "btn btn-primary" %>
+  <% end %>
+</div>
+
+<br>
+<br>
+<p>These are the current classes under which traits can be grouped.</p>
+
+<ul class="list-group">
+
+  <li class="list-group-item">              
+    <div class="row">
+      <div class="col-md-1" style="color: lightgrey;">
+      </div>
+
+      <div class="col-md-2">
+        <strong>Name</strong>
+      </div>
+
+      <div class="col-md-4">
+        <strong>Description</strong>
+      </div>
+
+      <div class="col-md-3">
+        <strong>Has precision?</strong>
+      </div>
+
+      <div class="col-md-2">
+        <strong></strong>
+      </div>
+    </div>
+  </li>
+
+  <% @valuetypes.each do |valuetype| %>
+      <li class="list-group-item">              
+        <div class="row">
+          <div class="col-md-1" style="color: lightgrey;">
+            <%= valuetype.id %>
+          </div>
+
+          <div class="col-md-2">
+            <%= valuetype.value_type_name %>
+          </div>
+
+          <div class="col-md-3">
+            <%= valuetype.value_type_description %>
+          </div>
+
+          <div class="col-md-1">
+          </div>
+
+          <div class="col-md-3">
+            <%= valuetype.has_precision %>
+          </div>
+
+          <div class="col-md-2">
+            <div class="btn-group">
+              <%#= link_to 'Show', observation_path(issue.observation), class: "btn btn-xs btn-default" %>
+              <%= link_to 'Edit', edit_valuetype_path(valuetype), class: "btn btn-default btn-xs" %>
+              <% if logged_in? && current_user.editor? %>
+                <%= link_to 'Delete', valuetype, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-xs btn-danger" %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </li>
+    <% end %>   
+  </ul>
+</div>
+

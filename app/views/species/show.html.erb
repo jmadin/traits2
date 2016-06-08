@@ -1,0 +1,81 @@
+<% provide(:title, @specie.specie_name) %>
+
+<div class="col-md-12">
+  <h1>
+    <% if not @specie.approved %>
+      <span class="glyphicon glyphicon-bell" data-toggle="tooltip" data-placement="top" title="Pending approval"></span>
+    <% end %>
+    <em><%= @specie.specie_name %></em>
+  </h1>
+</div>
+
+<div class="col-md-8">
+
+  <p>
+    <strong>ID:</strong>
+    	<%= @specie.id %>
+  </p>
+	
+	<% if !@specie.synonyms.blank? %>
+	  <p>
+	    <strong>Other names:</strong>
+	    <ul>
+				<% @specie.synonyms.each do |s| %>
+		    	<li><em><span class="" data-toggle="tooltip" data-placement="right" title="<%= s.synonym_description %>"><%= s.synonym_name %></span></em></li>
+				<% end %>
+			</ul>
+	  </p>
+	<% end %>
+
+	<% if !@specie.specie_description.blank? %>
+	  <p>
+	    <strong>Description:</strong>
+	    	<%= @specie.specie_description %>
+	  </p>
+	<% end %>
+
+	<p>
+	  <strong>Added by:</strong>
+		<% if @specie.user %>
+	  	<%= @specie.user.first_name %> <%= @specie.user.last_name %>
+		<% end %>
+	</p>
+
+	<p>
+    <div class="btn-group">
+			<%= link_to 'Back', species_path, class: "btn btn-xs btn-default" %>
+	  	<% if logged_in? && current_user.admin? %>
+				<%= link_to 'Edit', edit_specie_path(@specie), class: "btn btn-xs btn-default" %>
+			<% end %>
+		</div>
+    <% if logged_in? && current_user.admin? %>
+      <div class="btn-group pull-right">
+        <%= link_to 'Delete', @specie, method: :delete, data: { confirm: 'Delete entire species, including observations and measurements?' }, class: "btn btn-xs btn-danger" %>
+      </div>
+    <% end %>
+	</p>
+
+  <% if File.exist?("app/assets/images/#{@specie.specie_name.tr(" ", "_")}.png") %>
+    <ul class="list-group">
+      <li class="list-group-item">	 		
+        <%= image_tag "#{@specie.specie_name.tr(" ", "_")}.png", :style => "border:0px;", class: "img-responsive" %>
+      </li>
+    </ul>
+	<% else %>
+		<p>No map</p>
+	<% end %>
+
+</div>
+
+<div class="col-md-4">
+  <%= render "specie_links" %>
+</div>
+
+
+<div class="col-md-12">
+
+	<h3>Traits</h3>
+
+	<%= render "specie_observations" %>
+</div>
+

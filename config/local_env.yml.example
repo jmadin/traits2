@@ -1,0 +1,21 @@
+# Your database name here:
+SITE_NAME: 'Traits'
+SITE_URL: 'localhost:3000'
+SITE_EMAIL: 'admin@traits.org'
+SITE_IMAGE: 'home.png' # Found in public/images directory
+
+# Is your database in beta or running on a development server?
+SITE_BETA: 'true'
+SITE_DEV: 'true'
+
+# Sendgrid details
+SENDGRID_USERNAME: 'username'
+SENDGRID_PASSWORD: 'password'
+
+# Twitter details (get from "widgets" under "setting" at twitter.com)
+TWITTER_SCREENNAME: 'jmadin'
+TWITTER_ID: 'a_long_number'
+
+# Where do you want the global map centered?
+MAP_LATITUDE: '0'
+MAP_LONGITUDE: '155'

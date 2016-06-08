@@ -1,0 +1,173 @@
+
+<div class="col-md-3">
+	<h1>Search</h1>
+	<hr>
+		
+	<div class="ui-widget">
+  	<%= form_tag search_index_path, :method => :get do %>
+			<div class="form-group">
+		    <%#= text_field_tag :search, params[:search],  { class: "form-control search", placeholder: "Search..." }   %>
+			</div>
+		    <%= hidden_field_tag :search, params[:search] %>
+	    
+			<div class="form-group">
+		    Limit search to (optional):
+		    <%= select_tag :model_name, options_for_select(['Specie', 'Trait', 'Resource', 'Location', 'Standard', 'Methodology', 'Observation'], params[:model_name]), { :multiple => true, :size =>7, class: "form-control"} %>
+			</div>
+
+	    <%= submit_tag "Search Again", class: "btn btn-primary" %>
+		<% end %>
+	</div>
+</div>
+
+<div class="col-md-9">
+
+	<% if defined?(@result_present) %>
+		<!-- <h4>Results...</h4> -->
+	<% end %>
+	
+	<% if (defined?(@result_present) ) && (not @result_present )%>
+		<div class="alert alert-danger">Your query did not result any results.</div>
+	<% end %>
+
+	<% if (not defined?(@result_present) ) && (not @result_present )%>
+		<div class="alert alert-danger">No query entered.</div>
+	<% end %>
+
+	<% if @specie_search  %>
+		<% if not @specie_search.results.blank? %>
+			<h4><%= link_to "Species", species_path(search: params[:search]) %></h4>
+		<% end %>
+		<ul class="list-group">
+			<% @specie_search.results.each do |s| %>
+	     	<li class="list-group-item">							
+					<%= link_to s.specie_name, s %>
+					<% if s.synonyms.size > 0 %>
+						<% synonyms = [] %>
+						<% s.synonyms.each do |synonym| %>
+				    	<% synonyms << synonym.synonym_name %>
+						<% end %>
+						(<%= synonyms.join(", ") %>)
+					<% end %>
+				</li>
+			<% end %>
+		</ul>
+	<% end %>
+
+	<% if @trait_search %>
+		<% if not @trait_search.results.blank? %>
+			<h4><%= link_to "Traits", traits_path(search: params[:search]) %></h4>
+		<% end %>
+		<ul class="list-group">
+			<% @trait_search.results.each do |s| %>
+	     	<li class="list-group-item">							
+					<%= link_to s.trait_name, s %>
+				</li>
+			<% end %>
+		</ul>
+	<% end %>
+
+	<% if @standard_search %>
+		<% if not @standard_search.results.blank? %>
+			<h4><%= link_to "Standards", standards_path(search: params[:search]) %></h4>
+		<% end %>
+		<ul class="list-group">
+			<% @standard_search.results.each do |s| %>
+	     	<li class="list-group-item">							
+					<%= link_to s.standard_name, s %>
+					<% if s.standard_unit %>
+						(<%= s.standard_unit %>)
+					<% end %>
+				</li>
+			<% end %>
+		</ul>
+	<% end %>
+
+
+	<% if @location_search %>
+		<% if not @location_search.results.blank? %>
+			<h4><%= link_to "Locations", locations_path(search: params[:search]) %></h4>
+		<% end %>
+		<ul class="list-group">
+			<% @location_search.results.each do |s| %>
+	     	<li class="list-group-item">							
+					<%= link_to s.location_name, s %>
+					(lat: <%= s.latitude %>, lon: <%= s.longitude %>)
+				</li>
+			<% end %>
+		</ul>
+	<% end %>
+
+	<% if @resource_search %>
+		<% if not @resource_search.results.blank? %>
+			<h4><%= link_to "Resources", resources_path(search: params[:search]) %></h4>
+		<% end %>
+		<ul class="list-group">
+			<% @resource_search.results.each do |s| %>
+	     	<li class="list-group-item">							
+		        	<%= link_to s.author, s %>
+		        	<% if s.year %>
+			        	(<%= s.year %>)
+	    				<% end %>		
+		        	<%= s.title %>.
+              <% if s.journal %>
+                <em><%= s.journal %></em>
+              <% end %>   
+              <% if s.volume_pages %>
+                <%= s.volume_pages %>
+              <% end %>   
+				</li>
+			<% end %>
+		</ul>
+	<% end %>
+
+	<% if @methodology_search %>
+		<% if not @methodology_search.results.blank? %>
+			<h4><%= link_to "Methodologies", methodologies_path(search: params[:search]) %></h4>
+		<% end %>
+		<ul class="list-group">
+			<% @methodology_search.results.each do |s| %>
+	     	<li class="list-group-item">							
+					<%= link_to s.methodology_name, s %>
+				</li>
+			<% end %>
+		</ul>
+	<% end %>
+
+	<% if @version_search %>
+		<% if not @version_search.results.blank? %>
+			<h4><%= link_to "Database versions", versions_path(search: params[:search]) %></h4>
+		<% end %>
+		<ul class="list-group">
+			<% @version_search.results.each do |s| %>
+	     	<li class="list-group-item">							
+					<%= link_to s.version_notes s %>
+				</li>
+			<% end %>
+		</ul>
+	<% end %>
+
+	<% if @observation_search %>
+		<% if not @observation_search.results.blank? %>
+			<h4><%= link_to "Observations", observations_path(search: params[:search]) %></h4>
+		<% end %>
+		<ul class="list-group">
+			<% @observation_search.results.each do |s| %>
+				<% s.measurements.each do |m| %>				
+		     	<li class="list-group-item">							
+						<%= link_to "Observation #{s.id}", s %>
+						| <em><%= link_to s.specie.specie_name, specie_path(s.specie) %></em>
+						<% if s.location %>
+							| <%= link_to s.location.location_name, location_path(s.location) %>
+						<% end %>
+						| <%= link_to m.trait.trait_name, trait_path(m.trait) %> | <%= m.value %>
+						<% if m.standard.standard_unit %>
+							(<%= m.standard.standard_unit %>)
+						<% end %>
+					</li>
+				<% end %>
+			<% end %>
+		</ul>
+	<% end %>
+
+</div>

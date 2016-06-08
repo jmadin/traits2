@@ -1,0 +1,116 @@
+<% provide(:title, 'Locations') %>
+
+<div class="col-md-9">
+  <%= render "shared/index_header" %>
+<ul class="list-group">
+<li class="list-group-item">              
+  <div id="map-canvas" class="map-container"></div>
+  </li>
+  </ul>
+</div>
+
+
+<%= form_tag export_locations_path do %>
+
+  <div class="col-md-3">
+    <%= render "shared/download_options" %>
+  </div>
+
+  <div class="col-sm-12">
+
+    <%= will_paginate @locations, :inner_window => 1, :outer_window => 0 %>
+
+  	<ul class="list-group">
+    	<% @locations.sort_by{|e| e[:location_name]}.each do |location| %>
+  		  <li id="countlist" class="list-group-item">							
+  				<div class="row">
+  	        <div class="col-sm-1" style="color: lightgrey;">
+  	        	<%= location.id %>
+  	        </div>
+
+  	        <div class="col-sm-5">
+              <% if not location.approved %>
+                <span class="glyphicon glyphicon-bell" title="Pending Approval"></span>
+              <% end %>
+  	        	<%= link_to location.location_name, location, 'data-no-turbolink' => true %>
+              <% if location.latitude %>
+                <small>(<%= location.latitude.round(3) %>,
+                <%= location.longitude.round(3) %>)</small>
+              <% end %>
+  	        </div>
+
+            <div class="col-sm-3">
+            </div>
+
+            <% if not params[:all] %>
+              <div id="countlist" class="col-sm-3">
+                <p class="pull-right">
+                  <%= render "shared/access_counts", :itemid1 => location.id %>
+                  <%= check_box_tag "checked[]", location.id %>
+                </p>
+              </div>
+            <% else %>
+              <div class="col-sm-3">
+                <p class="pull-right">
+                  <%= check_box_tag "checked[]", location.id %>
+                </p>
+              </div>
+            <% end %>
+
+
+  				</div>
+  			</li>
+      <% end %>		
+    </ul>
+
+    <%= will_paginate @locations, :inner_window => 1, :outer_window => 0 %>
+
+	</div>
+<% end %>
+
+
+<% if @locations.blank? %>
+  <div class="col-md-12">
+    <%= render "shared/no_observations" %>
+  </div>
+<% end %>
+
+<div class="col-sm-12">
+  <p>Download full locations list as a <%= link_to "csv", locations_path(format: "csv", search: params[:search], page: params[:page], all: params[:all]) %>.</p>
+</div>
+
+<script type="text/javascript">
+  var locations = <%= raw @locations.map {|i| [i.location_name.to_s, i.latitude.to_s, i.longitude.to_s, i.id.to_s] } %>;
+
+  var map = new google.maps.Map(document.getElementById('map-canvas'), {
+    zoom: 1,
+    center: new google.maps.LatLng(<%= ENV["MAP_LATITUDE"] %>, <%= ENV["MAP_LONGITUDE"] %>),
+    mapTypeId: google.maps.MapTypeId.SATELLITE,
+    streetViewControl: false
+  });
+
+  var infowindow = new google.maps.InfoWindow();
+
+  var marker, i;
+
+  for (i = 0; i < locations.length; i++) {  
+    marker = new google.maps.Marker({
+      position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+      map: map
+    });
+
+    google.maps.event.addListener(marker, 'click', (function(marker, i) {
+      return function() {
+        infowindow.setContent('<a data-no-turbolink="true" href="locations/'+locations[i][3]+'">'+locations[i][0]+'</a>');
+        infowindow.open(map, marker);
+      }
+    })(marker, i));
+  }
+</script>
+
+
+
+
+
+
+

@@ -1,0 +1,270 @@
+<div class="col-md-12">
+
+  <h1>
+		<% if not @observation.approved %>
+      <span class="glyphicon glyphicon-bell" data-toggle="tooltip" data-placement="top" title="Pending approval"></span>
+		<% end %>
+  	<% if @observation.issues.where(resolved: false).present? %>
+	  	<span class="glyphicon glyphicon-warning-sign" style="color:red;" data-toggle="tooltip" data-placement="top" title="Unresolved issue"></span>
+		<% end %>
+		Observation record
+	</h1>
+  <hr>
+
+</div>
+<div class="col-md-12">
+
+	<p>
+	  <strong>ID:</strong>
+		<%= @observation.id %>
+	</p>
+
+	<p>
+		<strong>Species:</strong>
+	  <em><%= link_to @observation.specie.specie_name, specie_path(@observation.specie) %></em>
+	</p>
+
+	<p>
+	  <strong>Location:</strong>
+		<% if @observation.location.present? %>
+		  <%= link_to @observation.location.location_name, location_path(@observation.location), 'data-no-turbolink' => true %>
+		<% else %>
+				No record
+		<% end %>
+	</p>
+
+
+	<p>
+	  <strong>Primary resource:</strong>
+			<% if @observation.resource.present? %>
+
+		  <% ref = @observation.resource.author %>
+			<% if @observation.resource.year %>
+		  	<% ref = ref + " (" + @observation.resource.year.to_s + ")" %>
+			<% end %>
+		  <% ref = ref + " " + @observation.resource.title + "." %>
+			<% if @observation.resource.journal %>
+		  	<% ref = ref + " " + @observation.resource.journal %>
+			<% end %>
+			<% if @observation.resource.volume_pages %>
+		  	<% ref = ref + " " + @observation.resource.volume_pages %>
+			<% end %>
+	  		<%= link_to ref, resource_path(@observation.resource) %>
+			<% else %>
+				No record
+			<% end %>
+	</p>
+
+	<% if @observation.resource_secondary_id %>
+		<% @secondary = Resource.where(:id => @observation.resource_secondary_id).first %>
+		<p>
+		  <strong>Secondary resource:</strong>
+			  <% sref = @secondary.author %>
+				<% if @secondary.year %>
+			  	<% sref = sref + " (" + @secondary.year.to_s + ")" %>
+				<% end %>
+			  <% sref = sref + " " + @secondary.title + "." %>
+				<% if @secondary.journal %>
+			  	<% sref = sref + " " + @secondary.journal %>
+				<% end %>
+				<% if @secondary.volume_pages %>
+			  	<% sref = sref + " " + @secondary.volume_pages %>
+				<% end %>
+	  		<%= link_to sref, resource_path(@secondary.id) %>
+		</p>
+	<% end %>
+
+	<p>
+	  <strong>Contributor:</strong>
+		<% if @observation.user.present? %>
+	  	<%= link_to "#{@observation.user.first_name} #{@observation.user.last_name}", user_path(@observation.user) %>
+		<% else %>
+			No record
+		<% end %>
+	</p>
+
+	<p>
+	  <strong>Access:</strong>
+		<% if @observation.access == false %>
+			<span class="glyphicon glyphicon-remove-circle" style="color:red;"></span>
+		<% else %>
+			<span class="glyphicon glyphicon-ok-circle" style="color:green;"></span>
+		<% end %>
+	</p>
+
+
+	<% if @observation.updated_at.present? %>
+		<p>
+		  <strong>Last modified:</strong>
+		  <%= @observation.updated_at.to_s(:ctdb_date) %>
+		</p>
+	<% end %>
+
+	<% if @observation.created_at.present? %>
+		<p>
+		  <strong>Created:</strong>
+		  <%= @observation.created_at.to_s(:ctdb_date) %>
+		</p>
+	<% end %>
+
+	<% if logged_in? && (@observation.user_id == current_user.id || current_user.editor?) %>
+		<div class="btn-group">
+			<%= link_to 'Edit', edit_observation_path(@observation), class: "btn btn-xs btn-default" %>
+		</div>
+    <div class="btn-group pull-right">
+	  	<%= link_to 'Delete', observation_path(@observation), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-xs btn-danger" %>
+    </div>
+	<% end %>
+
+</div>
+
+<div class="col-md-12">
+
+	<h3>Measurements</h3>
+
+	<ul class="list-group">
+
+		<% if @observation.measurements.count > 0 %>
+		  <% @observation.measurements.joins(:trait).each do |measurement| %>
+
+
+			  <% if measurement.trait.hide %>
+			    <li class="list-group-item disabled">             
+			  <% else %>
+			    <li class="list-group-item">             
+			  <% end %>
+					<div class="row">
+					  <div class="col-sm-1" style="color: lightgrey;">
+					  	<%= measurement.id %>
+						</div>
+					  <div class="col-sm-3">
+
+							<% if measurement.trait.traitclass && measurement.trait.traitclass.contextual %>
+					  		<span class="glyphicon glyphicon-eye-open" data-toggle="tooltip" data-placement="top" title="Measurement is contextual"></span>
+							<% end %>
+					  	<%= link_to measurement.trait.trait_name, trait_path(measurement.trait_id), 'data-no-turbolink' => true %>
+              <% if measurement.trait.hide %>
+                <span class="label label-danger" data-toggle="tooltip" data-placement="right" title="Trait only visible to Editors">hidden</span>
+              <% end %>
+						</div>
+
+					  <% if not measurement.trait.hide or (logged_in? && current_user.editor?) %>
+
+						  <div class="col-sm-4">
+
+
+		            <% if measurement.trait.traitvalues.present? %>
+		              <% traitvalue = measurement.trait.traitvalues.where(:value_name => measurement.value) %>
+		              <% if not traitvalue.empty? and traitvalue.first.value_description.present?  %>
+		                <span class="label label-primary" data-toggle="tooltip" data-placement="top" title="<%= traitvalue.first.value_description %>"><%= measurement.value %></span>
+		              <% else %>
+		                <span class="label label-primary" data-toggle="tooltip" data-placement="top" title="No description"><%= measurement.value %></span>
+		              <% end %>
+		            <% else %> 
+									<%= measurement.value %>
+		            <% end %> 
+
+								<% if measurement.standard.present? %>
+						  		(<%= link_to measurement.standard.standard_unit, standard_path(measurement.standard_id) %>)
+								<% end %>
+							</div>
+		  
+
+						  <div class="col-sm-2">
+								<% if measurement.valuetype %>
+									<span class="label label-default"><%= measurement.valuetype.value_type_name %></span>
+								<% else %>
+									<span class="label label-danger">no value type</span>
+								<% end %>
+							</div>
+
+						  <div class="col-sm-2">
+								<% if measurement.methodologies %>
+									<% measurement.methodologies.each do |methodology| %>
+										<%= link_to methodology.methodology_name, methodology_path(methodology) %><br>
+									<% end %>
+								<% else %>
+									<span class="label label-danger">no method</span>
+								<% end %>
+							</div>
+			 			<% else %>
+						  <div class="col-sm-8">Measurements for this trait have been hidden by an Editor</div>
+			 			<% end %>
+
+					</div>
+
+					
+					<% if measurement.valuetype.has_precision %>
+						<div class="row">
+						  <div class="col-sm-1">
+							</div>
+						  <div class="col-sm-3">
+					      
+							</div>
+							<div class="col-sm-4">
+					      <%= measurement.precision %>
+								<% if measurement.precision_upper && measurement.precision_upper != "" %>
+					      	-<%= measurement.precision_upper %>
+					      <% end %> (<%= measurement.precisiontype.precision_type_name %>)
+							</div>
+
+							<% if measurement.replicates && measurement.replicates != "" %>
+						  	<div class="col-sm-3">
+					      	replicates: <%= measurement.replicates %>
+								</div>
+							<% end %>
+						</div>
+		 			<% end %>
+
+					<% if measurement.measurement_description && measurement.measurement_description != "" %>
+						<div class="row">
+						  <div class="col-sm-4">
+							</div>
+						  <div class="col-md-8">
+					      <strong>Notes:</strong> <%= measurement.measurement_description %>
+							</div>
+						</div>
+		 			<% end %>
+				</li>
+		
+		 	<% end %>
+		<% end %>
+	</ul>
+
+	<% if logged_in? %>
+		<% if @observation.issues.size > 0 %>
+			<h3>Issues</h3>
+		<% end %>
+
+		<ul class="list-group">
+			<%= render @observation.issues %>
+		</ul>
+
+		<%= form_for([@observation, @observation.issues.build]) do |f| %>
+	    <%= f.hidden_field :user_id, :value => current_user.id %>
+	    <%= f.hidden_field :observation_id, :value => @observation.id %>
+
+			<div class="row">
+				<div class="col-md-1" style="color:lightgrey;">
+				</div>
+
+			  <div class="col-md-4">
+			  </div>
+
+				<div class="col-md-5">
+				  <div class="form-group">
+				    <%= f.text_field :issue_description, class: "form-control", :placeholder => "Report an issue..." %>
+				  </div>
+				</div>
+
+				<div class="col-md-2">
+	    		<%= f.hidden_field :resolved, :value => false %>
+			    <%= f.submit "Submit", class: "btn btn-primary" %>
+			  </div>
+			</div>
+		<% end %>
+	<% end %>
+
+</div>
+
+

@@ -1,0 +1,2 @@
+module PrecisiontypesHelper
+end

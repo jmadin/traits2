@@ -1,0 +1,183 @@
+<% mark = "" %>
+
+<% @observations.each do |obs| %>    
+
+  <%#= obs.measurements.inspect %>
+  
+	<% if @user %>
+		<%= hidden_field_tag "all_ids[]", obs.id %>
+	<% end %>
+
+	<% if obs.specie.specie_name != mark %>
+		</ul>
+		<h4><em><%= link_to obs.specie.specie_name, "/species/" + obs.specie_id.to_s %></em></h4>
+		<ul class="list-group">
+	<% end %>
+
+  <% if @trait && @trait.hide %>
+    <li class="list-group-item disabled">             
+  <% else %>
+    <li class="list-group-item">             
+  <% end %>
+
+		<div class="row">
+			<div class="col-sm-1">
+				<label class="checkbox-inline">
+
+					<% if @user %>
+						<%= check_box_tag "pub_ids[]", obs.id, obs.access %>
+					<% end %>
+
+					<% if obs.access == false %>
+						<span class="glyphicon glyphicon-remove-circle" style="color:red;"></span>
+					<% else %>
+						<span class="glyphicon glyphicon-ok-circle" style="color:green;"></span>
+					<% end %>
+				</label>
+  		</div>
+
+      <div class="col-sm-1" style="color: lightgrey;">
+      	<%= obs.id %>
+
+				<% if obs.issues.where("resolved != ?", true).present? %>
+  				<span data-toggle="tooltip" data-placement="top" title="Issue reported">
+						<%= link_to "", observation_path(obs), class: "glyphicon glyphicon-warning-sign", style: "color:red;"  %>
+					</span>
+				<% end %>
+      </div>
+
+			<div class="col-sm-3">
+
+        <div class="col-sm-2">
+          <% if not obs.approved %>
+            <span data-toggle="tooltip" data-placement="top" title="Pending approval">
+              <%= link_to "", observation_path(obs), class: "glyphicon glyphicon-bell" %>
+              </span>
+          <% end %>
+        </div>
+
+				<div class="col-sm-2">
+  				<% if !obs.user_id.blank? && obs.user_id != 0 %>
+            <%= link_to user_path(obs.user_id) do %>
+              <span class="glyphicon glyphicon-user" data-toggle="tooltip" data-placement="top" title="<%= obs.user.first_name %> <%= obs.user.last_name %>"></span>
+            <% end %>
+  				<% end %>
+  			</div>
+
+				<div class="col-sm-2">
+  				<% if !obs.location_id.blank? && obs.location_id != 0 %>
+            <%= link_to location_path(obs.location_id) do %>
+    				  <% if obs.location.location_name == "Global Estimate" %>
+                <span class="glyphicon glyphicon-globe" data-toggle="tooltip" data-placement="top" title="<%= obs.location.location_name %>"></span>
+  	  				<% else %> 
+                <span class="glyphicon glyphicon-map-marker" data-toggle="tooltip" data-placement="top" title="<%= obs.location.location_name %>"></span>
+    				  <% end %> 
+            <% end %> 
+  				<% end %> 
+  			</div>
+
+				<div class="col-sm-2">
+  				<% if !obs.resource_id.blank? && obs.resource_id != 0 %>
+            <%= link_to resource_path(obs.resource_id) do %>
+              <span class="glyphicon glyphicon-tag" data-toggle="tooltip" data-placement="top" title="<%= obs.resource.title %>"></span>
+            <% end %>
+  				<% end %> 
+  			</div>    
+
+				<div class="col-sm-2">
+  				<% if !obs.resource_secondary_id.blank? %>
+            <%= link_to resource_path(obs.resource_secondary_id) do %>
+              <span class="glyphicon glyphicon-tags" data-toggle="tooltip" data-placement="top" title="<%= Resource.where(:id => obs.resource_secondary_id).first.title %>"></span>
+            <% end %>
+  				<% end %> 
+  			</div>    
+
+				<div class="col-sm-2">
+          <%#= Traitclass.where("id IN (?)", obs.measurements.map(&:trait_id)).map(&:traitclass) %>
+	      	<% if obs.measurements.size > 1 %>
+	  				<span data-toggle="tooltip" data-placement="top" title="Context included">
+  						<%= link_to "", observation_path(obs), class: "glyphicon glyphicon-eye-open" %>
+  					</span>
+					<% end %>
+  			</div>
+
+			</div>
+
+
+      <% if @trait %>
+      	<% measurements = obs.measurements %>
+			<% else %> 
+      	<% measurements = obs.measurements#.joins(:trait).where("contextual = 'f'") %>
+			<% end %> 
+
+    	<% if measurements.size == 1 %>
+				<div class="col-sm-3">
+					<%= link_to measurements.first.trait.trait_name, trait_path(measurements.first.trait_id), 'data-no-turbolink' => true %>
+	      </div>
+
+				<div class="col-sm-2">
+
+          <% if measurements.first.trait.traitvalues.present? %>
+            <% traitvalue = measurements.first.trait.traitvalues.where(:value_name => measurements.first.value) %>
+            <% if not traitvalue.empty? and traitvalue.first.value_description.present?  %>
+              <span class="label label-primary" data-toggle="tooltip" data-placement="top" title="<%= traitvalue.first.value_description %>"><%= measurements.first.value %></span>
+            <% else %>
+              <span class="label label-primary" data-toggle="tooltip" data-placement="top" title="No description"><%= measurements.first.value %></span>
+            <% end %>
+          <% else %> 
+            <%= measurements.first.value %>
+          <% end %> 
+
+          <% if not measurements.first.trait.traitvalues.present? and measurements.first.standard.present? %>
+            (<%= link_to measurements.first.standard.standard_unit, standard_path(measurements.first.standard_id) %>)
+          <% end %>
+
+	      </div>
+    	<% else %>
+      	<% if @trait %>
+	      	<% measurements = measurements.joins(:trait).where("trait_name LIKE ?", @trait.trait_name) %>
+ 					<div class="col-sm-3">
+						<%= link_to measurements.first.trait.trait_name, trait_path(measurements.first.trait_id), 'data-no-turbolink' => true %>
+		      </div>
+
+					<div class="col-sm-2">
+
+            <% if measurements.first.trait.traitvalues.present? %>
+              <% traitvalue = measurements.first.trait.traitvalues.where(:value_name => measurements.first.value) %>
+              <% if not traitvalue.empty? and traitvalue.first.value_description.present?  %>
+                <span class="label label-primary" data-toggle="tooltip" data-placement="top" title="<%= traitvalue.first.value_description %>"><%= measurements.first.value %></span>
+              <% else %>
+                <span class="label label-primary" data-toggle="tooltip" data-placement="top" title="No description"><%= measurements.first.value %></span>
+              <% end %>
+            <% else %> 
+              <%= measurements.first.value %>
+            <% end %> 
+
+            <% if not measurements.first.trait.traitvalues.present? and measurements.first.standard.present? %>
+              (<%= link_to measurements.first.standard.standard_unit, standard_path(measurements.first.standard_id) %>)
+            <% end %>
+
+		      </div>
+      	<% else %>
+					<div class="col-sm-5">
+						<span class="label label-primary"><%= measurements.size %></span> trait measurements
+		      </div>
+      	<% end %>
+    	<% end %>
+
+			<div class="col-sm-2">
+    		<div class="btn-group pull-right">				
+					<%= link_to 'Show', observation_path(obs), class: "btn btn-xs btn-default" %>
+  				<% if logged_in? && (obs.user_id == current_user.id || current_user.editor?) %>
+  					<% if @pending %>
+		        	<%= link_to 'Approve', observation_imports_approve_path(:item_id => obs.id), method: :post, class: "btn btn-xs btn-success" %>
+		        	<%= link_to 'Reject', observation_imports_approve_path(:item_id => obs.id, :reject => true), method: :post, class: "btn btn-xs btn-danger" %> 
+  					<% end %>
+
+  				<% end %>
+				</div>
+			</div>
+		</div>
+	</li>
+	<% mark = obs.specie.specie_name %>
+<% end %>

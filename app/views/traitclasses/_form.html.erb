@@ -1,0 +1,35 @@
+<%= form_for(@traitclass) do |f| %>
+
+  <%= render 'shared/error_messages', object: @traitclass %>
+
+  <div class="form-group">
+    <%= f.label :class_name %><br>
+    <%= f.text_field :class_name, class: "form-control" %>
+  </div>
+  <div class="form-group">
+    <%= f.label :class_description %><br>
+    <%= f.text_area :class_description, class: "form-control" %>
+  </div>
+  <div class="form-group">
+    <%= f.label "Is class contextual?" %><br>
+    <%= f.check_box :contextual %>
+  </div>
+
+  <div class="form-group">
+    <% if current_user.admin? %>
+      <%= f.label :enterer %>
+      <% if f.object.id.present? %>
+        <%= f.select :user_id, User.where(:contributor => true).collect {|a| ["#{a.first_name} #{a.last_name}", a.id]}, {}, class: "form-control" %>
+      <% else %>
+        <%= f.select :user_id, User.where(:contributor => true).collect {|a| [a.first_name, a.id]}, {:selected => current_user.id}, class: "form-control" %>
+      <% end %>
+    <% else %>
+      <%#= current_user.first_name %>
+      <%= f.hidden_field :user_id, :value => current_user.id %>
+    <% end %>
+  </div>
+
+
+
+  <%= f.submit "Submit", class: "btn btn-primary btn-lg" %>
+<% end %>

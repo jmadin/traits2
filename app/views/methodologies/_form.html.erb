@@ -1,0 +1,59 @@
+<%= form_for(@methodology) do |f| %>
+
+  <%= render 'shared/error_messages', object: f.object %>
+
+
+	<div class="form-group">
+		<%= f.label :methodology_name %><br>
+		<%= f.text_field :methodology_name, :placeholder => "Required...", class: "form-control" %>
+	</div>
+
+	<div class="form-group">
+		<%= f.label :methodology_description %><br>
+		<%= f.text_area :methodology_description, class: "form-control", :rows => "10" %>
+	</div>
+	
+	<%# if f.object.traits.blank? %>      
+    	<%# f.object.traits.build %>
+  	<%# end %>
+
+<!-- 	<h3>Traits</h3>
+
+	<p><small>Add traits that use this methodology.</small></p>
+
+  <div id = "traits">
+	  <%#= f.fields_for :traits do |t| %>
+	  	<%#= render "trait_fields", :f => t %>
+	  <%# end %>
+	</div>
+
+  <div class="links">
+    <p><%#= link_to_add_association "add another trait", f, :traits,
+    		'data-association-insertion-method' => "append" %></p>
+  </div>
+ -->
+  <div class="form-group">
+    <% if current_user.admin? %>
+      <%= f.label :enterer %>
+      <% if f.object.id.present? %>
+        <%= f.select :user_id, User.where(:contributor => true).collect {|a| ["#{a.first_name} #{a.last_name}", a.id]}, {}, class: "form-control" %>
+      <% else %>
+        <%= f.select :user_id, User.where(:contributor => true).collect {|a| ["#{a.first_name} #{a.last_name}", a.id]}, {:selected => current_user.id}, class: "form-control" %>
+      <% end %>
+    <% else %>
+      <%#= current_user.first_name %>
+      <%= f.hidden_field :user_id, :value => current_user.id %>
+    <% end %>
+  </div>
+
+  <% if current_user.editor? %>
+    <div class="form-group">
+      <%= f.label "Approved?" %>
+      <%= f.check_box :approved %>
+    </div>
+  <% end %>
+
+	<%= f.submit "Submit", class: "btn btn-primary btn-lg" %>
+	<%= link_to 'Back', methodologies_path %>
+
+<% end %>

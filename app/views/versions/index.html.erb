@@ -1,0 +1,51 @@
+<% provide(:title, 'History') %>
+
+<div class="col-md-12">
+
+  <h1>History</h1>
+
+  <p>Filter by: <%= link_to "All", '/history' %> |  <%= link_to "User", '/history?type=User' %> |  <%= link_to "Species", '/history?type=Specie' %> | <%= link_to "Measurements", '/history?type=Measurement' %> |  <%= link_to "Trait", '/history?type=Trait' %> |  <%= link_to "Observation", '/history?type=Observation' %> |  <%= link_to "Location", '/history?type=Location' %> |  <%= link_to "Resource", '/history?type=Resource' %> |  </p>
+
+  <% if @versions_by_item.empty? %>
+    <%= render "shared/no_observations" %>
+  <% else %>
+
+    <%= will_paginate @versions_by_item, :inner_window => 1, :outer_window => 0 %>
+
+    <ul class="list-group">
+      <% @versions_by_item.each do |version| %>
+      
+        <li class="list-group-item">             
+
+          <div class="row">
+            <div class="col-md-3">
+              <%= version.created_at.to_s(:ctdb_date) %>
+            </div>
+            <div class="col-md-3">
+              <%= version.item_type %> ID: <%= version.item_id %>
+            </div>
+            <div class="col-md-3">
+              <% if version.whodunnit && version.whodunnit != 'Guest' %>
+                <% user = User.find_by_id(version.whodunnit) %>
+                <% if user %>
+                  <%= link_to "#{user.first_name} #{user.last_name}", user %>
+                <% end %>
+              <% else %>
+                Guest
+              <% end %>
+            </div>
+            <div class="col-md-3">
+              <div class="btn-group pull-right">
+                <%= link_to 'View', "/history/#{version.id}", class: "btn btn-xs btn-default" %>
+                <%= link_to 'Revert', "/revert/#{version.id}" ,class: "btn btn-xs btn-danger", :method => :post %>
+              </div>
+            </div>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+
+    <%= will_paginate @versions_by_item %>
+  <% end %>
+
+</div>

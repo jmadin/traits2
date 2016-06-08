@@ -1,0 +1,115 @@
+<% provide(:title, @location.location_name) %>
+
+<div class="col-md-12">
+  <h1>
+    <% if not @location.approved %>
+      <span class="glyphicon glyphicon-bell" data-toggle="tooltip" data-placement="top" title="Pending approval"></span>
+    <% end %>
+
+    <% if @location.location_name != "Global Estimate" %>
+      <span class="glyphicon glyphicon-map-marker" data-toggle="tooltip" data-placement="top" title="Location"></span>
+    <% else %>
+      <span class="glyphicon glyphicon-globe" data-toggle="tooltip" data-placement="top" title="Global"></span>
+    <% end %>
+
+    <%= @location.location_name %>
+
+  </h1>
+</div>
+
+
+<div class="col-md-6">
+  <p>
+    <strong>ID:</strong>
+      <%= @location.id %>
+  </p>
+  <p>
+    <strong>Latitude:</strong>
+    <% if @location.latitude.present? %>
+      <%= @location.latitude.round(4) %>
+    <% else %>
+      <font style="color:lightgrey;">No record</font>
+    <% end %>
+  </p>
+
+  <p>
+    <strong>Longitude:</strong>
+    <% if @location.longitude.present? %>
+      <%= @location.longitude.round(4) %>
+    <% else %>
+      <font style="color:lightgrey;">No record</font>
+    <% end %>
+  </p>
+  
+
+  <%= render "shared/description", :description => @location.location_description %>
+
+  <p>
+    <strong>Added by:</strong>
+    <% if @location.user %>
+      <%= @location.user.first_name %> <%= @location.user.last_name %>
+    <% end %>
+  </p>
+
+  <p>
+    <div class="btn-group">
+      <%= link_to 'Back', locations_path, class: "btn btn-xs btn-default" %>
+      <% if logged_in? && current_user.contributor? %>
+        <%= link_to 'Edit', edit_location_path(@location), class: "btn btn-xs btn-default" %>
+      <% end %>
+    </div>
+    <% if logged_in? && current_user.admin? %>
+      <div class="btn-group pull-right">
+        <%= link_to 'Delete', @location, method: :delete, data: { confirm: 'Delete entire location, including observations and measurements?' }, class: "btn btn-xs btn-danger" %>
+      </div>
+    <% end %>
+  </p>
+
+</div>
+
+<% if @location.latitude.present? and @location.longitude.present? %>
+  <div class="col-md-6" data-no-turbolink>
+<ul class="list-group">
+<li class="list-group-item">              
+    <% if @location.location_name != "Global" %>
+      <div id="map-canvas" class="map-container" data-no-turbolink></div> 
+    <% end %>
+</li>
+</ul>
+  </div>
+<% end %>
+
+<div class="col-md-12">
+  <h3>Observations from this location</h3>
+
+  <% if @observations.empty? %>
+    <%= render "shared/no_observations" %>
+  <% else %>
+  	<%= will_paginate @observations, :inner_window => 1, :outer_window => 0 %>
+  	<%= render "shared/observations" %>
+    <br>
+    <%= will_paginate @observations, :inner_window => 1, :outer_window => 0 %>
+  <% end %>
+</div>
+
+<script type="text/javascript">
+  var loc = <%= raw [@location.location_name.to_s, @location.latitude.to_s, @location.longitude.to_s, @location.id.to_s] %>;
+
+  var map = new google.maps.Map(document.getElementById('map-canvas'), {
+    zoom: 10,
+    center: new google.maps.LatLng(loc[1], loc[2]),
+    mapTypeId: google.maps.MapTypeId.SATELLITE,
+    streetViewControl: false
+  });
+
+  var infowindow = new google.maps.InfoWindow();
+
+  marker = new google.maps.Marker({
+    position: new google.maps.LatLng(loc[1], loc[2]),
+    map: map
+  });
+</script>
+
+
+
+

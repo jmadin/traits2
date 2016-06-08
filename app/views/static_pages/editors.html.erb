@@ -1,0 +1,28 @@
+<% provide(:title, 'Editors') %>
+
+<div class="col-md-12">
+
+  <%= markdown File.open(Rails.root + "public/information/editors.md", 'r').read %>
+
+  <div class="row">
+    <div class="col col-md-12">
+      <div class="list-group">
+        <% User.where(:editor => true).each do |editor| %>
+          <div class="list-group-item">
+            <div class="row">
+              <div class="col col-md-2">
+                <%= editor.first_name %> <%= editor.last_name %>
+              </div>      
+              <div class="col col-md-10">
+                <% Trait.where(:user_id => editor.id).joins(:traitclass).where("contextual != 't'").each do |tr| %>
+                <%= link_to tr.trait_name, trait_path(tr), class: "label label-primary", 'data-no-turbolink' => true %>
+              <% end %>
+              </div>      
+            </div>      
+          </div>
+        <% end %>
+      </div>      
+    </div>      
+  </div>
+
+</div>

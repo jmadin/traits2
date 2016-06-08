@@ -1,0 +1,122 @@
+<% provide(:title, 'Traits Overview') %>
+
+<div class="col-md-12">
+	<h1>
+		Traits
+    <span class="label label-danger pull-right">overview</span>
+	</h1>
+	<hr>
+
+	<% obs = Observation.where("access IS 't' AND (resource_id IS NULL OR resource_id = ?)", 0) %>
+	<% if !obs.blank? %>
+		<ul class="list-group">
+
+		  <li class="list-group-item">							
+				<div class="row">
+					<div class="col-md-4" style="text-align:right;">
+						<strong>Public observations with no resource:</strong>
+						<br><span class="label label-danger">critical</span>
+					</div>
+					<div class="col-md-8">
+						<% obs.each do |o| %>
+							<%= link_to o.id, observation_path(o.id), class: "label label-default" %>
+						<% end %>
+					</div>
+				</div>
+			</li>
+		</ul>
+	<% end %>
+
+
+	<div class="row">
+		<div class="col-md-1">
+			Showing:
+		</div>
+		<div class="col-md-2">
+			<%= form_tag overview_traits_path, :method => 'get' do %>
+			  <%= select_tag :release_status, options_for_select([['Ready for release', 't'], ['Not ready', 'f']], params[:release_status]), include_blank: false, onchange: "$(this).parent('form').submit();", class: "form-control" %>
+			<% end %>
+		</div>
+		<div class="col-md-5">
+		</div>
+		<div class="col-md-4">
+
+			<%= link_to 'Export release data', '/export_release', :action => 'export_release', class: "btn btn-default" %>
+			<%= link_to 'Export release resources', '/export_release_resources', :action => 'export_release_resources', class: "btn btn-default" %>
+		</div>
+	</div>
+
+	<br>
+	<p>
+		<span class="badge"><%= @traits.size %></span> traits
+	</p>
+
+
+	<ul class="list-group">
+	  <li class="list-group-item">							
+			<div class="row">
+				<div class="col-md-2">
+			  </div>
+				<div class="col-md-3">
+				  <strong>Description</strong>
+			  </div>
+				<div class="col-md-1">
+				  <strong>Standard</strong>
+			  </div>
+				<div class="col-md-2">
+				  <strong>Value range</strong>
+			  </div>
+				<div class="col-md-2">
+				  <strong>Resources</strong>
+			  </div>
+				<div class="col-md-2">
+				  <strong>Measurements</strong>
+			  </div>
+			</div>
+		</li>
+		
+		<% @traits.sort_by{ |h| h[:release_status] }.each do |trait| %>
+		  <li class="list-group-item">							
+				<div class="row">
+					<div class="col-md-2">
+				  	<%= trait.id %>.
+				  	<%= link_to trait.trait_name, trait_path(trait), 'data-no-turbolink' => true %><br>
+					  <span class="label label-default"><%= trait.traitclass.class_name if trait.traitclass %></span><br>
+				  	(<%= trait.user.first_name %>)<br>
+					  <%= link_to 'Edit', edit_trait_path(trait), class: "btn btn-default btn-xs" %>
+						<%= link_to "Meta", meta_trait_path(trait), class: "btn btn-default btn-xs" %>
+						<%= link_to "Duplicates", duplicates_trait_path(trait), class: "btn btn-default btn-xs" %>
+						<%= link_to "Resources", resources_trait_path(trait), class: "btn btn-default btn-xs" %>
+
+				  </div>
+					<div class="col-md-3">
+					  <%= trait.trait_description %>
+				  </div>
+					<div class="col-md-1">
+					  <%= trait.standard.standard_name %> (<%= trait.standard.standard_unit %>)
+				  </div>
+					<div class="col-md-2">
+						<% if trait.traitvalues.present? %>
+						  <% trait.traitvalues.each do |v| %>
+						  	<span class="label label-primary"><%= v.value_name %></span>
+							<% end %>
+						<% else %>
+					  	<span class="label label-success">not applicable</span>
+						<% end %>
+
+				  </div>
+					<div class="col-md-3">
+					  <%= Observation.where("access IS 't' AND observations.id IN (?)", Measurement.where(:trait_id => trait.id).map(&:observation_id)).map(&:resource_id).uniq.join(", ") %>
+				  </div>
+					<div class="col-md-1">
+					  <%= Measurement.where("trait_id = ?", trait.id).joins(:observation).where("access IS 't'").size %>
+				  </div>
+	<!-- 						<div class="col-md-1">
+					  <%#= check_box_tag "checked[]", trait.id, checked = true %>
+				  </div> -->
+			  </div>
+		  </li>
+<% end %>
+		</ul>		
+
+</div>

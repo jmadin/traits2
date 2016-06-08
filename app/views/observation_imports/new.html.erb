@@ -1,0 +1,34 @@
+
+  <div class="col-md-8">
+    <%= render 'shared/error_messages', object: @observation_import %>
+    <h1>
+      Import spreadsheet
+    </h1>
+    <hr>
+  </div>
+
+  <div class="col-md-4" style="float:right;">
+    <ul class="list-group">
+      <li class="list-group-item">              
+        <div class="row">
+          <div class="col-md-12">
+
+            <%= form_for @observation_import do |f| %>
+              <%= f.radio_button :import_type, "new", :checked => true %>
+              <%= f.label :import_type, "Import new observations"  %><br>
+              <%= f.radio_button :import_type, "overwrite" %>
+              <%= f.label :import_type, "Overwrite existing observations" %>
+              <%= f.file_field :file, class: "form-control" %><br>
+              <%= f.hidden_field :user_id, :value => current_user.id %>
+              <%= f.submit "Import", class: "btn btn-primary" %>
+            <% end %>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="col-md-8">
+    <%= markdown File.open(Rails.root + "public/information/bulk_import.md", 'r').read %>
+  </div>
+

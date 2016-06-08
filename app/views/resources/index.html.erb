@@ -1,0 +1,86 @@
+<% provide(:title, 'Resources') %>
+
+<div class="col-md-9">
+  <%= render "shared/index_header" %>
+</div>
+
+<%= form_tag export_resources_path do %>
+
+  <div class="col-md-3">
+    <%= render "shared/download_options" %>
+  </div>
+
+  <div class="col-sm-12">
+    
+    <%= will_paginate @resources, :inner_window => 1, :outer_window => 0 %>
+
+		<ul class="list-group">
+    	<% @resources.each do |resource| %>
+			  <li class="list-group-item">							
+					<div class="row">
+		        <div class="col-sm-1" style="color: lightgrey;">
+		        	<%= resource.id %>
+		        </div>
+
+		        <div class="col-sm-7">
+              <% if not resource.approved %>
+                <span class="glyphicon glyphicon-bell" title="Pending Approval"></span>
+              <% end %>
+		        	<%= link_to resource.author, resource %>
+		        	<% if resource.year %>
+			        	(<%= resource.year %>)
+	    				<% end %>		
+		        	<%= resource.title %>.
+              <% if resource.journal %>
+                <em><%= resource.journal %></em>
+              <% end %>   
+              <% if resource.volume_pages %>
+                <%= resource.volume_pages %>
+              <% end %>   
+		        </div>
+
+            <div class="col-sm-2">
+              <% if logged_in? && current_user.contributor? and not params[:all] %>
+                <div id="dupdetect">
+                  <p>
+                    <span class="dup" data-resourceid=<%= resource.id %>><span class="label label-warning"><span class="glyphicon glyphicon-refresh spinning"></span></span></span>
+                  </p>
+                </div>
+              <% end %>
+            </div>
+
+
+            <% if not params[:all] %>
+              <div id="countlist" class="col-sm-2">
+                <p class="pull-right">
+                  <%= render "shared/access_counts", :itemid1 => resource.id %>
+                  <%= check_box_tag "checked[]", resource.id %>
+                </p>
+              </div>
+            <% else %>
+              <div class="col-sm-2">
+                <p class="pull-right">
+                  <%= check_box_tag "checked[]", resource.id %>
+                </p>
+              </div>
+            <% end %>
+
+					</div>
+				</li>
+	    <% end %>		
+    </ul>
+    
+    <%= will_paginate @resources, :inner_window => 1, :outer_window => 0 %>
+	</div>
+<% end %>
+
+
+<% if @resources.blank? %>
+  <div class="col-md-12">
+    <%= render "shared/no_observations" %>
+  </div>
+<% end %>
+
+<div class="col-sm-12">
+  <p>Download full resources list as a <%= link_to "csv", resources_path(format: "csv", search: params[:search], page: params[:page], all: params[:all], count: params[:count]) %>.</p>
+</div>

@@ -1,0 +1,78 @@
+<%= form_for(@trait) do |f| %>
+
+	<%= render 'shared/error_messages', object: @trait %>
+
+  <div class="form-group">
+    <%= f.label :trait_name %><br>
+    <%= f.text_field :trait_name, :placeholder => "Required...", class: "form-control" %>
+  </div>
+  <div class="form-group">
+    <%= f.label :trait_description %><br>
+    <p><small>Accepts markdown.</small></p>
+    <%= f.text_area :trait_description, class: "form-control", :rows => "10" %>
+  </div>
+  <div class="form-group">
+    <%= f.label :trait_class %><br>
+    <%= f.select :traitclass_id, Traitclass.all.collect {|a| ["#{a.class_name}", a.id]}, {:include_blank => ""}, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :default_standard %><br>
+    <%= f.select :standard_id, Standard.all.collect {|a| ["#{a.standard_name} (#{a.standard_unit})", a.id]}, {:include_blank => ""}, class: "form-control" %>
+  </div>
+
+    <div class="form-group">
+      <%= f.label "Log data for graphs?" %>
+      <%= f.check_box :log_data %>
+    </div>
+
+
+  <%= f.label :trait_values %><br>
+  <div id = "traitvalues">
+    <%= f.fields_for :traitvalues do |t| %>
+      <%= render "traitvalue_fields", :f => t %>
+    <% end %>
+  </div>
+  <div class="links">
+    <p><%= link_to_add_association "Add a value option", f, :traitvalues, class: "btn btn-default btn-xs" %></p>
+  </div>
+
+<!--   <%#= f.label :methodologies %><br>
+  <div id="methodologies">
+    <%#= f.fields_for :methodologies do |t| %>
+      <%#= render "methodology_fields", :f => t %>
+    <%# end %>
+  </div>
+  <div class="links">
+    <p><%#= link_to_add_association "Add a methodology", f, :methodologies, class: "btn btn-default btn-sm" %></p>
+  </div>
+ -->
+  <% if current_user.editor? %>
+  	<div class="form-group">
+  		<%= f.label :editor %>
+  		<%= f.select :user_id, User.where(:editor => true).collect {|a| ["#{a.first_name} #{a.last_name}", a.id]}, {}, class: "form-control" %>
+    </div>
+  	
+    <div class="form-group">
+      <%= f.label "Approved?" %>
+      <%= f.check_box :approved %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label "Released?" %>
+      <%= f.check_box :released %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label "Hide trait from contributors?" %>
+      <%= f.check_box :hide %>
+    </div>
+  <% end %>
+
+  
+
+
+
+	<%= f.submit "Submit", class: "btn btn-primary btn-lg" %>
+
+<% end %>

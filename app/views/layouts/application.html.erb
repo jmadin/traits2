@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= full_title(yield(:title)) %></title>  
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/apple-touch-icon-152x152.png">
+    <link rel="shortcut icon" href="/images/favicon.ico">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%= stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
+    <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+    <%= analytics_init :local => Rails.env.development? %>
+    <%= csrf_meta_tags %>
+    <%= render 'layouts/shim' %>
+  </head>
+  
+  <% if action_name == 'home' %>
+    <body class="home">
+  <% else %>
+    <body>
+  <% end %>
+    
+    <% if ENV["SITE_DEV"] == 'true' %>
+      <div style="position:absolute;"><font color="red">DEVELOPMENT</font></div>
+    <% end %>
+
+    <div class="container">
+      <%= render 'layouts/header' %>
+
+      <% flash.each do |key, value| %>
+        <div class="alert alert-<%= key %>"><%= value %></div>
+      <% end %>
+
+      <%= yield %>
+
+      <% render partial: "layouts/google_analytics" %>
+
+      <%#= debug(params) if Rails.env.development? %>
+    </div>
+  </body>
+</html>

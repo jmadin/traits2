@@ -1,0 +1,14 @@
+<ul class="list-group">
+	<li class="list-group-item">							
+		<p><strong>External resources for this species:</strong></p>
+		<ul>
+			<li type="disc">
+				<%= link_to "World Register of Marine Species", "http://www.marinespecies.org/aphia.php?p=taxlist&tName=" + @specie.specie_name.to_s, target: "_blank" %>
+			</li>
+
+			<li type="disc">
+				<%= link_to "OBIS observation records", "http://iobis.org/mapper/?taxon=" + @specie.specie_name.to_s, target: "_blank" %>
+			</li>
+		</ul>
+	</li>
+</ul>	

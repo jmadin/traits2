@@ -1,0 +1,17 @@
+<% provide(:title, 'Methodologies') %>
+
+<div class="col-md-12">
+  <h1>Observations</h1>
+	<hr>
+</div>
+
+<div class="col-md-12">
+  <% if @observations.empty? %>
+  	<%= render "shared/no_observations" %>
+  <% else %>
+  	<%= will_paginate @observations, :inner_window => 1, :outer_window => 0 %>
+  	<%= render "shared/observations" %>
+  	<br>
+  	<%= will_paginate @observations, :inner_window => 1, :outer_window => 0 %>
+  <% end %>
+</div>

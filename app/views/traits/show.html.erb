@@ -1,0 +1,181 @@
+<% provide(:title, @trait.trait_name) %>
+
+<div class="col-md-12">
+	<h1>
+    <% if not @trait.approved %>
+      <span class="glyphicon glyphicon-bell" data-toggle="tooltip" data-placement="top" title="Pending approval"></span>
+    <% end %>
+		<% if @trait.traitclass.present? && @trait.traitclass.contextual %>
+  		<span class="glyphicon glyphicon-eye-open" data-toggle="tooltip" data-placement="top" title="Contextual trait"></span>
+		<% end %>
+		<%= @trait.trait_name %>
+		<% if @specie %>
+			(<em><%= link_to @specie.specie_name, specie_path(@specie) %></em>)
+		<% end %>
+	  <% if @trait.hide %>
+      <span class="label label-danger pull-right" data-toggle="tooltip" data-placement="left" title="Trait only visible to Editors">hidden</span>
+	  <% end %>
+
+	</h1>
+</div>
+
+<div class="col-md-8">
+  <p>
+    <strong>ID:</strong>
+    	<%= @trait.id %>
+  </p>
+
+	<p>
+	  <strong>Class:</strong>
+		<% if @trait.traitclass.present? %>
+			<%= @trait.traitclass.class_name %>
+		<% else %>
+			<font style="color:lightgrey;">Unclassified</font>
+		<% end %>
+	</p>
+
+  <%= render "shared/description", :description => @trait.trait_description %>
+
+	<p>
+		<strong>Standards:</strong>
+		<% if not @standards.empty? %>
+				<ul>
+					<% @standards.each do |standard| %>
+						<li>
+							<%= link_to standard.standard_name, standard %> (<%= standard.standard_unit %>)
+							<% if standard == @trait.standard %>
+								<span class="label label-primary">default</span>
+							<% end %>
+					</li>
+					<% end %>
+				</ul>
+		<% else %>
+			<font style="color:lightgrey;">None entered</font>
+		<% end %>
+	</p>
+
+
+	<% if @trait.traitvalues.present? %>
+		<% @all_traitvalues = (@mea_traitvalues + @rec_traitvalues).uniq %>
+		<p>
+			<strong>Values:</strong>
+			<% @all_traitvalues.each do |tv| %>
+				<% vd = @trait.traitvalues.where(:value_name => tv) %>
+      	<% if vd.present?  %>
+					<span data-toggle="tooltip" data-placement="top" title="<%= vd.first.value_description %>">
+				<% else %>
+					<span data-toggle="tooltip" data-placement="top" title="No description">
+				<% end %>
+
+          <% if @rec_traitvalues.include?(tv) and @mea_traitvalues.include?(tv)  %>
+          	<% if params[:value]  %>
+	          	<% if params[:value] == tv  %>
+		            <%= link_to tv, trait_path(@trait), class: "label label-primary" %>
+							<% else %>
+		            <%= link_to tv, trait_path(@trait, :value => tv), class: "label label-default" %>
+							<% end %>
+						<% else %>
+	            <%= link_to tv, trait_path(@trait, :value => tv), class: "label label-primary" %>
+						<% end %>
+					<% else %>
+						<% if !@mea_traitvalues.include?(tv) %>
+		          	<%#= link_to tv, trait_path(@trait, :value => tv), class: "label label-success" %>
+	          	<% if params[:value] %>
+		          	<% if params[:value] == tv  %>
+			          	<%= link_to tv, trait_path(@trait), class: "label label-success" %>
+								<% else %>
+			            <%= link_to tv, trait_path(@trait, :value => tv), class: "label label-default" %>
+								<% end %>
+							<% else %>
+	            	<%= link_to tv, trait_path(@trait, :value => tv), class: "label label-success" %>
+							<% end %>
+						<% end %>
+						<% if !@rec_traitvalues.include?(tv) %>
+		          <%#= link_to tv, trait_path(@trait, :value => tv), class: "label label-danger" %>
+	          	<% if params[:value] %>
+		          	<% if params[:value] == tv  %>
+			          	<%= link_to tv, trait_path(@trait), class: "label label-danger" %>
+								<% else %>
+			            <%= link_to tv, trait_path(@trait, :value => tv), class: "label label-default" %>
+								<% end %>
+							<% else %>
+	            	<%= link_to tv, trait_path(@trait, :value => tv), class: "label label-danger" %>
+							<% end %>
+						<% end %>
+					<% end %>
+				</span>
+			<% end %>
+		</p>
+	<% end %>
+
+	<p>
+		<strong>Methodologies:</strong>
+		<% if not @methodologies.empty? %>
+				<ul>
+					<% @methodologies.each do |methodology| %>
+						<li>
+							<%= link_to methodology.methodology_name, methodology %>
+					</li>
+					<% end %>
+				</ul>
+		<% else %>
+			<font style="color:lightgrey;">None entered</font>
+		<% end %>
+	</p>
+
+	<p>
+		<strong>Editor:</strong>
+		<% if !@trait.user.blank? %>
+			<%= @trait.user.first_name %> <%= @trait.user.last_name %> (<%= mail_to @trait.user.email, "contact", {:subject => "#{ENV["SITE_NAME"]} enquiry"} %>)
+		<% end %>
+	</p>
+
+	<p>
+		<div class="btn-group">
+    	<%= link_to 'Back', traits_path, class: "btn btn-xs btn-default" %>
+	  </div>
+		<div class="btn-group">
+			<% if logged_in? && current_user.contributor? %>
+	      <%= link_to 'Edit', edit_trait_path(@trait), class: "btn btn-xs btn-default" %>
+		  <% end %>
+			<% if logged_in? && current_user.editor? %>
+					<%= link_to "Meta", meta_trait_path(@trait), class: "btn btn-default btn-xs" %>
+					<%= link_to "Duplicates", duplicates_trait_path(@trait), class: "btn btn-default btn-xs" %>
+					<%= link_to "Resources", resources_trait_path(@trait), class: "btn btn-default btn-xs" %>
+					<%#= link_to "Overview", overview_traits_path(:release_status => 'ready_for_release'), class: "btn btn-default btn-xs" %>
+			<% end %>
+	  </div>
+	  <% if logged_in? && current_user.admin? %>
+	    <div class="btn-group pull-right">
+	      <%= link_to 'Delete', @trait, method: :delete, data: { confirm: 'Delete entire trait, including observations and measurements?' }, class: "btn btn-xs btn-danger" %>
+	    </div>
+		<% end %>
+	</p>
+  
+</div>
+
+<div class="col-md-4">
+	<% if @chart %>
+		<ul class="list-group">
+			<li class="list-group-item">							
+				<div id='chart'></div>
+				<%= render_chart @chart, 'chart' %>
+				<%#= @data_table %>
+			</li>
+		</ul>
+	<% end %>
+</div>
+
+<div class="col-md-12">
+
+	<h3>Observations</h3>
+
+	<% if @observations.empty? %>
+		<%= render "shared/no_observations" %>
+	<% else %>
+		<%= will_paginate @observations, :inner_window => 1, :outer_window => 0 %>
+		<%= render "shared/observations" %>
+		<br>
+		<%= will_paginate @observations, :inner_window => 1, :outer_window => 0 %>
+	<% end %>
+</div>

@@ -1,0 +1,42 @@
+<div class="row">
+	<div class="col-md-6 col-md-offset-3">
+		<h1>Editing resource</h1>
+
+    <% if (@sug and not @sug == "Invalid") and (@resource.resource_type == "paper" or @resource.resource_type.blank?) %>
+      <ul class="list-group">
+        <li class="list-group-item">              
+          <p>
+            <strong>Suggested doi from CrossRef based on title:</strong>
+            <ul>
+            <% @sug["message"]["items"].each do |a| %>
+              <li><%= a["DOI"] %> <small>(<%= link_to a["title"][0], "http://dx.doi.org/" + a["DOI"], :target => "_blank" %>)</small></li>
+            <% end %>
+            </ul>
+          </p>
+        </li>
+      </ul>
+    <% end %>
+
+    <% if not @resource.doi_isbn.present? and (@resource.resource_type == "paper" or @resource.resource_type.blank?) %>
+      <ul class="list-group">
+        <li class="list-group-item">              
+          <strong>Suggested doi from CrossRef based on title:</strong>
+          <ul id="doilist">
+            <li><span class="doi" data-resourceid=<%= @resource.id %>><span class="glyphicon glyphicon-refresh spinning"></span></span></li>
+          </ul>
+        </li>
+      </ul>
+    <% end %>
+
+
+
+		<%= render 'form' %>
+
+		<%= link_to 'Show', @resource %> |
+		<%= link_to 'Back', resources_path %>
+
+	</div>
+</div>
+
+
+

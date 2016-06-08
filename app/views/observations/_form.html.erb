@@ -1,0 +1,115 @@
+<% @my_var = @temp_var %>
+
+<%= form_for @observation, class: "form-group" do |f| %>
+	
+	<script>
+		$(document).ready(function() {
+			$('select#simple-example').select2();
+		});
+	</script>
+	
+  <%= render 'shared/error_messages', object: f.object %>
+
+  <div class="well">
+  <div class="row">
+    <div class="col-md-6">
+
+      <div class="form-group">
+    	  <%= f.label "species (required)" %><br>
+    		<%= f.select :specie_id, Specie.all.map { |u| ["#{u.specie_name} (#{u.synonyms.collect(&:synonym_name).join(",")})", u.id] }, { include_blank: "Choose species..." }, { id: 'simple-example', :style => "width: 250px;" } %>
+    	</div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="form-group">
+        <%= f.label "location (required)" %><br>
+    		<%= f.select :location_id, Location.all.map { |u| [u.location_name, u.id] }, { include_blank: "Choose location..." }, { id: 'simple-example', :style => "width: 250px;" } %>
+    	</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="form-group">
+        <%= f.label "resource (recommended)" %><br>
+        <p><small>All published data needs a resource.</small></p>
+        <%= f.select :resource_id, Resource.all.map { |u| ["#{u.author} (#{u.year}) #{u.title}", u.id] }, { include_blank: "Choose resource..." }, { id: 'simple-example', :style => "width: 250px;" } %>
+      </div>
+<!--       <div class="form-group">
+        <%#= text_field_tag :resource_doi, nil, :placeholder => "Doi...", class: "form-control" %>
+      </div>
+ -->    </div>
+
+    <div class="col-md-6">
+      <div class="form-group">
+        <%= f.label "secondary resource (if applicable)" %><br>
+        <p><small>For observations that are part of secondary compilations.</small></p>
+        <%= f.select :resource_secondary_id, Resource.all.map { |u| ["#{u.author} (#{u.year}) #{u.title}", u.id] }, { include_blank: "Choose resource..." }, { id: 'simple-example', :style => "width: 250px;" } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="form-group">
+        <strong>Make observation accessible?</strong> <%= f.check_box :access %>
+        <p><small>Please keep unpublished data private (do not check the box above) as per the <%= link_to "Procedures", procedures_path %>.</small></p>
+        
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="form-group">
+        <% if current_user.admin? %>
+          <strong>Entered by:</strong>
+          <% if f.object.id %>
+            <%= f.select :user_id, User.where(:contributor => true).collect {|a| [a.first_name, a.id]}, {:selected => @observation.user_id}, class: "form-control" %>
+          <% else %>
+            <%= f.select :user_id, User.where(:contributor => true).collect {|a| [a.first_name, a.id]}, {:selected => current_user.id}, class: "form-control" %>
+          <% end %>
+        <% else %>
+          <strong>Entered by:</strong> <%= current_user.first_name %>
+          <%= f.hidden_field :user_id, :value => current_user.id %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <% if logged_in? && current_user.editor? %>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <strong>Approved?</strong>
+          <%#= f.select :approval_status, ['pending', 'approved'], {:selected => @observation.approval_status}, class: "form-control" %>
+          <%= f.check_box :approved %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  </div>
+
+  <% if f.object.measurements.blank? %>      
+    <% f.object.measurements.build %>
+  <% end %>
+
+  
+  <h3>Measurements</h3>
+
+  <p><label class="label label-danger">Important</label> An observation of a species can have more than one measurement, and it's important to make this association clear by entering these measurements in the same observation record. Use the "Add another measurement" link below to enter other measurements of the same individual at the same time.</p>
+  <p><label class="label label-success">Context</label> We also encourage the entry of contextual  measurements (i.e., "traits" of the environment or experiment); for example, the depth of water the species was found in, the reef habitat, or the year recorded (in the case the same individual was measured at different times). If in doubt, please read the <%= link_to "Procedures", procedures_path %> page or contact the relevant <%= link_to "Editor", editors_path %>.</p>
+
+
+  <div id = "measurements">
+	  <%= f.fields_for :measurements do |measurement| %>
+	  	<% render :partial => "measurement_fields", :locals => { :f => measurement } %>
+	  <% end %>
+	</div>
+  <div class="links">
+    <p><%= link_to_add_association "Add another measurement", f, :measurements, :wrap_object => Proc.new { |item| item = Measurement.new } %></p>
+  </div>
+
+  <%= f.submit 'Save', class: "btn btn-primary btn-lg" %>
+
+
+<% end %>

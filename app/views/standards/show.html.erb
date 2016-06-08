@@ -1,0 +1,65 @@
+<% provide(:title, 'Standards') %>
+
+<div class="col-md-12">
+  <h1>
+    <% if not @standard.approved %>
+      <span class="glyphicon glyphicon-bell" data-toggle="tooltip" data-placement="top" title="Pending approval"></span>
+    <% end %>
+    Standard: <%= @standard.standard_name %>
+  </h1>
+</div>
+
+<div class="col-md-12">
+
+  <p>
+    <strong>ID:</strong>
+      <%= @standard.id %>
+  </p>
+
+  <p>
+    <strong>Measurement unit:</strong>
+    <%= @standard.standard_unit %>
+  </p>
+
+  <p>
+    <strong>Class:</strong>
+    <%= @standard.standard_class %>
+  </p>
+
+  <%= render "shared/description", :description => @standard.standard_description %>
+
+  <% if @standard.user %>
+    <p>
+      <strong>Added by:</strong>
+      <%= @standard.user.first_name %> <%= @standard.user.last_name %>
+    </p>
+  <% end %>
+
+  <p>
+    <div class="btn-group">
+      <%= link_to 'Back', standards_path, class: "btn btn-xs btn-default" %>
+      <% if logged_in? && current_user.editor? %>
+        <%= link_to 'Edit', edit_standard_path(@standard), class: "btn btn-xs btn-default" %>
+      <% end %>
+    </div>
+    <% if logged_in? && current_user.admin? %>
+      <div class="btn-group pull-right">
+        <%= link_to 'Delete', @standard, method: :delete, data: { confirm: 'Delete entire standard, including observations and measurements?' }, class: "btn btn-xs btn-danger" %>
+      </div>
+    <% end %>
+  </p>
+
+</div>
+
+<div class="col-md-12">
+  <h3>Observations using this standard</h3>
+
+  <% if @observations.empty? %>
+    <%= render "shared/no_observations" %>
+  <% else %>
+    <%= will_paginate @observations, :inner_window => 1, :outer_window => 0 %>
+    <%= render "shared/observations" %>
+    <br>
+    <%= will_paginate @observations, :inner_window => 1, :outer_window => 0 %>
+  <% end %>
+</div>

@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>User:</strong>
+  <%= @valuetype.user %>
+</p>
+
+<p>
+  <strong>Value type name:</strong>
+  <%= @valuetype.value_type_name %>
+</p>
+
+<p>
+  <strong>Value type description:</strong>
+  <%= @valuetype.value_type_description %>
+</p>
+
+<p>
+  <strong>Has precision:</strong>
+  <%= @valuetype.has_precision %>
+</p>
+
+<%= link_to 'Edit', edit_valuetype_path(@valuetype) %> |
+<%= link_to 'Back', valuetypes_path %>

@@ -1,0 +1,13 @@
+<% provide(:title, 'Uploads') %>
+
+<div class="col-md-12">
+
+  <h1>Uploads</h1>
+
+  <ul>
+  <% Dir["public/uploads/*.csv"].each do |file| %>
+    <li><%= link_to file.split("/")[2], file[/\/.*/] %></li>
+  <% end %>
+  </ul>
+
+</div>

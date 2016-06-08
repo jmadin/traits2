@@ -1,0 +1,24 @@
+
+<h3>CSV Upload Admin</h3>
+
+
+<% item_present = false %>
+<% list = [@species, @locations, @traits, @standards, @resources] %>
+<% list.each do |l| %>
+	<% if not l.empty? %>
+		<% item_present = true %>
+		<% items = l %>
+		<%= render partial: "approve_table" , :locals => { :items => items } %>
+	<% end %>
+<% end %>
+
+<% if not @observations.empty? %>
+  <% item_present = true %>
+  <%= render "import_observations" %>
+
+<% end %>
+
+<% if not item_present %>
+	<div class="alert alert-info" role="alert">  No items uploaded </div>
+<% end %>
+
