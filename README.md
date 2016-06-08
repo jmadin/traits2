@@ -1,5 +1,4 @@
-# Trait Database quick-start guide
----
+# Trait database quick-start guide
 
 The following quick start guide creates a development database (using sqlite3).  The assumption is that you are trying out the database, and so don't need to get fancy at this stage. The first step is to set up rails on you computer or server (if you haven't already). A rails installation guide can be found here: [http://installrails.com](http://installrails.com)
 
@@ -24,7 +23,7 @@ The below quick start guide was last updated for ruby-2.2.3.
         cd ..
         bundle install
 
-5. Migrate database structure to sqlite3 development database
+5. Migrate database structure to sqlite3 development database and seed with example data
 
         rake db:migrate
         rake db:seed
@@ -43,32 +42,4 @@ The below quick start guide was last updated for ruby-2.2.3.
         admin@traits.org
         foobar
 
-
-
-
-complied development
-
-
-
-rm db/development.sqlite3 
-bundle exec rake db:migrate
-bundle exec bundle exec rake db:seed
-bundle exec rake sunspot:solr:start
-bundle exec rake sunspot:solr:reindex
-rake db:seed:dump MODELS_EXCLUDE="PaperTrail::Version"
-
-
-
-bundle install --without production
-https://toolbelt.heroku.com/
-git commit -a -m "Update Gemfile.lock for Heroku errors puma fixed"
-git push heroku master
-heroku rename baadtraits
-https://baadtraits.herokuapp.com
-
-heroku run rake --trace db:migrate
-heroku run rake sunspot:solr:start
-heroku run rake sunspot:solr:reindex
-
-heroku config
-
+9. Change password at ([http://localhost:3000/users/1/edit](http://localhost:3000/users/1/edit))
