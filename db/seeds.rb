@@ -64,9 +64,9 @@ Traitvalue.create!([
   {value_name: "Tabular", trait_id: 2, value_description: ""},
   {value_name: "Massive", trait_id: 2, value_description: ""}
 ])
-User.create!([
-  {first_name: "Dr", last_name: "Admin", institution: "", email: "admin@traits.org", password_digest: "$2a$10$JXP6POncO9abmyo0Mx4Y3O.kBTrp4xMKdVBk.2F3nhneShNbHIIBC", remember_digest: nil, admin: true, contributor: true, editor: true, activation_digest: "$2a$10$PcKLX3ZQfBJyjlpUGwbKyOh2NdthYD4OxFYLyYcfUhZrBOGMHpnNK", activated: true, activated_at: "2016-06-08 07:25:59", reset_digest: nil, reset_sent_at: nil, last_seen_at: "2016-06-08 07:41:19"}
-])
+
+User.create!(first_name: "Dr", last_name: "Admin", email: "admin@traits.org", password: "foobar", password_confirmation: "foobar", contributor: true, editor: true, admin: true, activated: true, activated_at: Time.zone.now)
+
 Valuetype.create!([
   {user_id: 1, value_type_name: "Raw value", value_type_description: "Value as measured by observer.", has_precision: false},
   {user_id: 1, value_type_name: "Mean", value_type_description: "The mean of multiple raw values.", has_precision: true}
