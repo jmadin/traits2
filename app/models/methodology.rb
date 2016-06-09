@@ -1,9 +1,7 @@
 class Methodology < ActiveRecord::Base
 
   belongs_to :user
-
-  has_many :measurements_methodologies
-  has_many :measurements, :through => :measurements_methodologies
+  has_many :measurements
 
   validates :methodology_name, :presence => true
   

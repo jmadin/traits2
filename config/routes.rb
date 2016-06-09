@@ -1,7 +1,5 @@
 Traits::Application.routes.draw do
 
-
-  resources :measurements_methodologies
   resources :precisiontypes
   resources :valuetypes
   resources :traitclasses

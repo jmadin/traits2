@@ -133,21 +133,11 @@
 			  <div class="form-group">
 				  <%= f.label "methodology (recommended)" %> <br/>
 
-				    <div id="measurements_methodologies">
-				      <%= f.fields_for :measurements_methodologies do |measurements_methodology| %>
-				        <% render :partial => "measurements_methodology_fields", :locals => { :f => measurements_methodology } %>
-				      <% end %>
-				    </div>
-				    <div class="links">
-				      <p><%= link_to_add_association "Add measurement methodology", f, :measurements_methodologies %></p>
-				    </div>
-
-
-				  <%# if !f.object.id %>
-    				<%#= f.select :methodology_id, Methodology.all.map { |u| [u.methodology_name, u.id] }, { include_blank: "Choose Methodology..." }, { id: 'simple-example', :style => "width: 250px;", class: "my_methodology" } %>
-				  <%# else %>
-    				<%#= f.select :methodology_id, Methodology.all.map { |u| [u.methodology_name, u.id] }, { include_blank: "Choose Methodology..." }, { id: 'simple-example', :style => "width: 250px;" } %>
-				  <%# end %>
+				  <% if !f.object.id %>
+    				<%= f.select :methodology_id, Methodology.all.map { |u| [u.methodology_name, u.id] }, { include_blank: "Choose Methodology..." }, { id: 'simple-example', :style => "width: 250px;", class: "my_methodology" } %>
+				  <% else %>
+    				<%= f.select :methodology_id, Methodology.all.map { |u| [u.methodology_name, u.id] }, { include_blank: "Choose Methodology..." }, { id: 'simple-example', :style => "width: 250px;" } %>
+				  <% end %>
 				</div>
 			</div>
 		</div><!-- End ROW -->

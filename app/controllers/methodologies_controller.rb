@@ -116,10 +116,8 @@ class MethodologiesController < ApplicationController
 
   def export
 
-        # @observations = Observation.where(:id => Measurement.joins(:methodologies).where("measurements_methodologies.methodology_id = ?", params[:itemid1]).map(&:observation_id))
-
     if params[:checked]
-      @observations = Observation.where(:id => Measurement.joins(:methodologies).where("measurements_methodologies.methodology_id IN (?)", params[:checked]).map(&:observation_id))
+      @observations = Observation.where(:id => Measurement.where("methodology_id IN (?)", params[:checked]).map(&:observation_id))
       # @observations = observation_filter(@observations)
     else
       @observations = []

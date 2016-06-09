@@ -86,7 +86,7 @@ class TraitsController < ApplicationController
 
     # @observations = observation_filter(@observations, true)
 
-    @methodologies = Methodology.joins(:measurements_methodologies).where("measurements_methodologies.measurement_id IN (?)", Measurement.where("observation_id IN (?) AND trait_id = ?", @observations.map(&:id), @trait.id).map(&:id)).uniq
+    @methodologies = Methodology.joins(:measurements).where("observation_id IN (?) AND trait_id = ?", @observations.map(&:id), @trait.id)
 
     @standards = Standard.where(:id => Measurement.where("observation_id IN (?) AND trait_id = ?", @observations.map(&:id), @trait.id).map(&:standard_id))
     
