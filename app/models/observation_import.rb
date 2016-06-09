@@ -45,10 +45,6 @@ class ObservationImport
       false
     else
       imported_observations.each(&:save!)
-      if import_type == "overwrite"
-        Measurement.where(:id => $remove).destroy_all
-        puts "MEASUREMENTS REMOVED WITH OVERWRITE: #{$remove}".red
-      end
       true
     end
   end
@@ -64,7 +60,7 @@ class ObservationImport
     header = spreadsheet.row(1)
     puts "header: #{header}".red
 
-    required_headers = ["observation_id", "access", "user_id", "location_id", "standard_id", "methodology_id", "value", "value_type", "precision", "precision_type", "precision_upper", "replicates", "notes"]
+    required_headers = ["observation_id", "access", "user_id", "location_id", "standard_id", "methodology_id", "value", "precision", "precision_upper", "replicates", "notes"]
 
     required_flag = true
     
@@ -91,27 +87,39 @@ class ObservationImport
       errors.add :base, "Missing header for either resource_doi or resource_id"
       required_flag = false
     end
-    
+
+    if not header.include? "value_type_id" and not header.include? "value_type_name"
+      errors.add :base, "Missing header for either value_type_id or value_type_name"
+      required_flag = false
+    end
+
+    if not header.include? "precision_type_id" and not header.include? "precision_type_name"
+      errors.add :base, "Missing header for either precision_type_id or precision_type_name"
+      required_flag = false
+    end
+  
     if required_flag == false
       return false
     else
 
       header[header.index("observation_id")] = "id"
-      header[header.index("access")] = "private"
-
-      if import_type == "overwrite"
-        # Make list of measurement ids to remove (if overwrite)
-        $remove = spreadsheet.column(1)
-        $remove.shift
-        $remove = Measurement.where(:observation_id => $remove).map(&:id)
-        puts "=== remove measurements: #{$remove}".red
-
-      end
 
       observation_marker = "-1"
+
       (2..spreadsheet.last_row).map do |i|
         row = Hash[[header, spreadsheet.row(i)].transpose]
-        row = process_private(row)
+
+
+        puts "Row #{i}: '#{row["access"]}'".green
+
+        # 1. Convert 0 or 1 to true or false for private field
+        if row["access"] == "1" or row["access"].blank?
+          row["access"] = true
+        else
+          row["access"] = false
+        end
+
+        puts "Row #{i}: '#{row["access"]}'".blue
 
 
         if row["specie_name"]
@@ -247,49 +255,64 @@ class ObservationImport
         # puts "#{Observation.where("specie_id IS ?", row["specie_id"]).inspect}".blue
 
         if observation_marker != row["id"]
-          if import_type == "overwrite"
-            $observation = Observation.find_by_id(row["id"])
-            puts "=== #{$observation.inspect}".red
-            if $observation.nil?
-              $observation = Observation.new
-              if row["id"].blank?
-                $observation.errors[:base] << "Row #{i}: Observation id is empty"
-              else
-                $observation.errors[:base] << "Row #{i}: Observation with id=#{row["id"]} doesn't exist"
-              end
-            end
-          else
-            $observation = Observation.new
-            if row["id"].blank?
-              $observation.errors[:base] << "Row #{i}: Observation id is empty"
-            end
+          $observation = Observation.new
+          if row["id"].blank?
+            $observation.errors[:base] << "Row #{i}: Observation id is empty"
           end
 
-          observation_row = {"id" => $observation.id, "user_id" => row["user_id"], "location_id" => row["location_id"], "specie_id" => row["specie_id"], "resource_id" => row["resource_id"], "resource_secondary_id" => row["resource_secondary_id"] , "private" => row["private"]}
+          observation_row = {"id" => $observation.id, "user_id" => row["user_id"], "location_id" => row["location_id"], "specie_id" => row["specie_id"], "resource_id" => row["resource_id"], "resource_secondary_id" => row["resource_secondary_id"] , "access" => row["access"]}
           $observation.attributes = observation_row.to_hash
-          $observation.approval_status = "pending"
+          $observation.approved = "pending"
 
           observation_marker = row["id"]
         else
           $observation = validate_observation_consistency(i, row)
         end
 
-
-
-
-
         $observation = validate_observation_exist(i, row)
         $observation = validate_public_resource(i, row)
 
+
+        value_type = Valuetype.where("value_type_name = ?", row["value_type_name"])
+        puts "=== Valuetype: #{value_type.inspect}".red
+        if value_type.empty?
+          errors[:base] << "Row #{i}: Measurement value type name does not exist"
+        else
+          row["valuetype_id"] = value_type.first.id
+        end
+
+        if row["precision_type_name"]
+          precision_type = Precisiontype.where("precision_type_name = ?", row["precision_type_name"])
+          puts "=== Precisiontype: #{precision_type.inspect}".red
+          if precision_type.empty?
+            errors[:base] << "Row #{i}: Measurement precision type name does not exist"
+          else
+            row["precisiontype_id"] = precision_type.first.id
+          end
+        end
+
+
         measurement = $observation.measurements.build
 
-        measurement_row = {"observation_id" => $observation.id, "user_id" => row["user_id"],  "trait_id" => row["trait_id"], "standard_id" => row["standard_id"],  "value" => row["value"], "value_type" => row["value_type"], "precision" => row["precision"], "precision_type" => row["precision_type"], "precision_upper" => row["precision_upper"], "replicates" => row["replicates"], "methodology_id" => row["methodology_id"], "notes" => row["notes"],  "approval_status" => "pending"}
+        measurement_row = {"observation_id" => $observation.id,  "trait_id" => row["trait_id"], "standard_id" => row["standard_id"],  "value" => row["value"], "valuetype_id" => row["valuetype_id"], "precision" => row["precision"], "precisiontype_id" => row["precisiontype_id"], "precision_upper" => row["precision_upper"], "replicates" => row["replicates"], "methodology_id" => row["methodology_id"], "measurement_description" => row["notes"]}
 
         measurement.attributes = measurement_row.to_hash
 
         $observation = validate_measurement_exist(i, row)
 
-        puts "==== #{measurement.inspect}".red
+        # if row["methodology_id"]
+
+        #   methodology = Methodology.where("id = ?", row["methodology_id"])
+        #   # puts "=== Precisiontype: #{precision_type.inspect}".red
+        #   if methodology.empty?
+        #     errors[:base] << "Row #{i}: Methodology does not exist"
+        #   else
+        #     MeasurementsMethodology.create(:measurement_id => measurement.id, :methodology_id  => row["methodology_id"])
+        #     # measurements_methodology.measurement_id = measurement.id
+        #     # measurements_methodology.methodology_id = methodology
+        #     # measurements_methodology.save!
+        #   end
+        # end
 
         $observation
       end
@@ -298,7 +321,6 @@ class ObservationImport
 
   def open_spreadsheet
     case File.extname(file.original_filename)
-    # when ".csv" then Roo::Csv.new(file.path, nil, :ignore)
     when ".csv" then Roo::CSV.new(file.path, csv_options: {encoding: Encoding::ISO_8859_1})
     when ".xls" then Excel.new(file.path, nil, :ignore)
     when ".xlsx" then Excelx.new(file.path, nil, :ignore)
@@ -326,20 +348,14 @@ class ObservationImport
       if row["value"].blank?
         $observation.errors[:base] << "Row #{i}: Value is blank"
       end
-      if row["value_type"].blank?
-        $observation.errors[:base] << "Row #{i}: Value_type is blank"
-      elsif !['raw_value', 'mean', 'median', 'maximum', 'minimum', 'model_derived', 'expert_opinion' , 'group_opinion'].include? row["value_type"]
-        $observation.errors[:base] << "Row #{i}: Value_type=#{row["value_type"]} doesn't match allowed value types"
-      end
-      if row["precision_type"].blank?
-      elsif !['standard_error', 'standard_deviation', '95_ci', 'range', 'not_given'].include? row["precision_type"]
-        $observation.errors[:base] << "Row #{i}: Precision_type=#{row["precision_type"]} doesn't match allowed precision types"
+      if row["valuetype_id"].blank?
+        $observation.errors[:base] << "Row #{i}: Value type is blank"
       end
       return $observation
     end
 
     def validate_observation_consistency(i, row)
-      $observation.errors[:base] << "Row #{i}: Access should be same for all measurements for a given observation" if $observation.private != row["private"]
+      $observation.errors[:base] << "Row #{i}: Access should be same for all measurements for a given observation" if $observation.access != row["access"]
       $observation.errors[:base] << "Row #{i}: User_id should be same for all measurements for a given observation" if $observation.user_id != row["user_id"].to_i
       $observation.errors[:base] << "Row #{i}: Specie_id should be same for all measurements for a given observation" if $observation.specie_id != row["specie_id"].to_i
       $observation.errors[:base] << "Row #{i}: Location_id should be same for all measurements for a given observation" if $observation.location_id != row["location_id"].to_i
@@ -351,7 +367,7 @@ class ObservationImport
     end
 
     def validate_public_resource(i, row)
-      $observation.errors[:base] << "Row #{i}: Resource_id required for public observations" if row["resource_id"].blank? and (row["private"] == false)
+      $observation.errors[:base] << "Row #{i}: Resource_id required for public observations" if row["resource_id"].blank? and (row["access"] == false)
       return $observation
     end
 
@@ -362,29 +378,16 @@ class ObservationImport
 
       $observation.errors[:base] << "Row #{i}: User_id=#{row["user_id"]} doesn't exist" if User.where("id = ?", row["user_id"]).blank?
       $observation.errors[:base] << "Row #{i}: User_id=#{row["user_id"]} is not your user ID." if (user_id != row["user_id"] and not User.find_by_id(user_id).admin)
-      # $observation.errors[:base] << "Row #{i}: Access #{row["private"]} isn't assigned" if row["private"].blank?
-
-      puts "specie_id: #{row["specie_id"].present?}".green
       $observation.errors[:base] << "Row #{i}: Specie_id=#{row["specie_id"]} doesn't exist" if Specie.where("id = ?", row["specie_id"]).blank?
       $observation.errors[:base] << "Row #{i}: Location_id=#{row["location_id"]} doesn't exist" if Location.where("id = ?", row["location_id"]).blank?
       $observation.errors[:base] << "Row #{i}: Resource_id=#{row["resource_id"]} doesn't exist" if Resource.where("id = ?", row["resource_id"]).blank?
-      $observation.errors[:base] << "Row #{i}: Resource_id=#{row["resource_id"]} doesn't exist and access is public" if (Resource.where("id = ?", row["resource_id"]).blank? and not row["private"]) unless row["resource_id"].blank?
+      $observation.errors[:base] << "Row #{i}: Resource_id=#{row["resource_id"]} doesn't exist and access is public" if (Resource.where("id = ?", row["resource_id"]).blank? and not row["access"]) unless row["resource_id"].blank?
 
       $observation.errors[:base] << "Row #{i}: Secondary resource_id=#{row["resource_secondary_id"]} doesn't exist" if Resource.where("id = ?", row["resource_secondary_id"]).blank? unless row["resource_secondary_id"].blank?
 
       return $observation
     end
 
-    def process_private(row)
-      # 1. Convert 0 or 1 to true or false for private field
-      if row["private"] == "0" or row["private"].blank?
-        row["private"] = true
-      else
-        row["private"] = false
-      end
-
-      return row
-    end
 
     def check_add_errors(items)
       flag = false

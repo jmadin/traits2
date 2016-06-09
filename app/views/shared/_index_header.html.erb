@@ -47,6 +47,7 @@
   <% elsif model == "releases" %>
     <% if logged_in? and current_user.admin? %>  
       <%= link_to "New #{model.singularize.capitalize}", "#{model}/new", class: "btn btn-primary" %>
+      <br>
       <%= form_tag export_release_traits_path do %>
         <%= submit_tag "Make Release Zip", {class: "btn btn-success pull-right"} %>
       <% end %>

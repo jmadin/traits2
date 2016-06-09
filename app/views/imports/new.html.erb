@@ -17,17 +17,6 @@
         <%= f.file_field :import_file, class: "form-control" %>
       </div>
 
-      <div class="form-group">
-
-        <%#= f.radio_button :import_type, false, "overwrite" %>
-
-        <%#= f.radio_button :import_type, true, "new" %>
-        <%= f.radio_button :import_type, "new", :checked => true %>
-        <%= f.label :import_type, "Import new observations", :value => "new"  %><br>
-        <%= f.radio_button :import_type, "overwrite" %>
-        <%= f.label :import_type, "Overwrite existing observations", :value => "overwrite" %>
-      </div>
-
       <%= f.submit "Import", :class => 'btn btn-primary'%>
     <% end %>
 

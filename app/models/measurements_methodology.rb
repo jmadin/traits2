@@ -1,4 +1,4 @@
 class MeasurementsMethodology < ActiveRecord::Base
-  belongs_to :measurement
-  belongs_to :methodology
+  belongs_to :measurement, :dependent => :destroy
+  belongs_to :methodology, :dependent => :destroy
 end

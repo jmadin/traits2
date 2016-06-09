@@ -14,14 +14,13 @@
           <div class="col-md-12">
 
             <%= form_for @observation_import do |f| %>
-              <%= f.radio_button :import_type, "new", :checked => true %>
-              <%= f.label :import_type, "Import new observations"  %><br>
-              <%= f.radio_button :import_type, "overwrite" %>
-              <%= f.label :import_type, "Overwrite existing observations" %>
-              <%= f.file_field :file, class: "form-control" %><br>
+              <%= f.file_field :file, class: "form-control" %>
               <%= f.hidden_field :user_id, :value => current_user.id %>
+              <br>
               <%= f.submit "Import", class: "btn btn-primary" %>
             <% end %>
+
+
           </div>
         </div>
       </li>
