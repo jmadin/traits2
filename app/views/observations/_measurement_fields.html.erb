@@ -1,79 +1,6 @@
 <div class="nested-fields">
 	<% @random_number = rand(50).to_s %>
 
-	<script>
-	  var a = 0;
-	  $(document).ready(function() {
-	  	$('select.my_standard').select2();
-	  	$('select.my_methodology').select2();
-			$('select.my_trait').select2();
-			$('select.my_methodology').select2();
-			//$('select.my_methodology').select2();
-
-
-	    $('.my_trait').change(function() {
-	      $.ajax({
-	        url: "/observations/update_values",
-	        cache: false,
-	        data: {
-	        			element_id: $(this).attr('id'),
-								trait_id: $(this).val()
-								//measurement_id: $(this).parents('.nested-fields').find('.measurement_id').attr("value")
-					},
-	        dataType: "script"
-
-	      });
-	    });
-	  });
-
-		function process_precision()
-
-		{
-
-			var has_precision = <%= raw Valuetype.where(:has_precision => true).map(&:id).to_json %>.map(String);
-			console.log(has_precision);
-
-		  // Process the precision fields while document loads for first time (new / edit)
-		  var selected_value_type = $('[id*=_valuetype_id]');
-		  selected_value_type.each(function(){
-				console.log($(this).val());
-				console.log($.inArray($(this).val(), has_precision));  
-		    if ($.inArray($(this).val(), has_precision) === -1)
-		      $(this).parents(".nested-fields").find(".precision").hide();
-		    else 
-		      $(this).parents(".nested-fields").find(".precision").show();
-		  });
-
-		  // Add event listener for on change in value_type
-		  $("[id*=_valuetype_id]").on("change", function() {
-	      var selected_value;
-	      selected_value = $(this).val();
-				console.log($(this).val());
-				console.log($.inArray($(this).val(), has_precision));  		      
-				if ($.inArray($(this).val(), has_precision) === -1) {
-	        $(this).parents(".nested-fields").find(".precision").children().val("");
-	        $(this).parents(".nested-fields").find(".precision").hide();
-	      } else {
-	        $(this).parents(".nested-fields").find(".precision").show();
-	      }
-	    });
-		  
-		}
-
-
-		$(document).ready(function(){
-		  $('.panel-body').hide();
-
-		  $('.panel-heading').click(function(e){
-		    e.preventDefault();
-		    $(this).next('.panel-body').fadeToggle("slow");
-		  });
-
-		  process_precision()  
-		});
-
-
-	</script>
 <%#= raw Valuetype.where(:has_precision => true).map(&:id).to_json %>
 
 	<span class="measurement_id hidden" value="<%= f.object.id if f.object.id %>" > </span>
@@ -112,7 +39,7 @@
 
 			<div class="col-md-6">
 				<div class="form-group">
-					<%= f.label :value_type %>
+					<%= f.label "value type (required)" %>
     			<%= f.select :valuetype_id, Valuetype.all.collect {|a| ["#{a.value_type_name}", a.has_precision, a.id]}, {}, class: "form-control" %>
 				</div>
 			</div>
@@ -132,22 +59,22 @@
 			<div class="col-md-6">
 			  <div class="form-group">
 				  <%= f.label "methodology (recommended)" %> <br/>
+				  <% if !f.object.id %>
+    				<%= f.select :methodology_id, Methodology.all.map { |u| [u.methodology_name, u.id] }, { include_blank: "Choose Methodology..." }, { id: 'simple-example', :style => "width: 250px;", class: "my_methodology" } %>
+				  <% else %>
+    				<%= f.select :methodology_id, Methodology.all.map { |u| [u.methodology_name, u.id] }, { include_blank: "Choose Methodology..." }, { id: 'simple-example', :style => "width: 250px;" } %>
+				  <% end %>
 
-				    <div id="measurements_methodologies">
-				      <%= f.fields_for :measurements_methodologies do |measurements_methodology| %>
-				        <% render :partial => "measurements_methodology_fields", :locals => { :f => measurements_methodology } %>
-				      <% end %>
+<!-- 				    <div id="measurements_methodologies">
+				      <%#= f.fields_for :measurements_methodologies do |measurements_methodology| %>
+				        <%# render :partial => "measurements_methodology_fields", :locals => { :f => measurements_methodology } %>
+				      <%# end %>
 				    </div>
 				    <div class="links">
-				      <p><%= link_to_add_association "Add measurement methodology", f, :measurements_methodologies %></p>
+				      <p><%#= link_to_add_association "Add measurement methodology", f, :measurements_methodologies %></p>
 				    </div>
+ -->
 
-
-				  <%# if !f.object.id %>
-    				<%#= f.select :methodology_id, Methodology.all.map { |u| [u.methodology_name, u.id] }, { include_blank: "Choose Methodology..." }, { id: 'simple-example', :style => "width: 250px;", class: "my_methodology" } %>
-				  <%# else %>
-    				<%#= f.select :methodology_id, Methodology.all.map { |u| [u.methodology_name, u.id] }, { include_blank: "Choose Methodology..." }, { id: 'simple-example', :style => "width: 250px;" } %>
-				  <%# end %>
 				</div>
 			</div>
 		</div><!-- End ROW -->
@@ -163,27 +90,26 @@
 	  			<p><small>For ranges, enter the mid-point value above as a mean or median, select "range" as the value type, and then enter the lower range value in "precision" and upper range value in "precision upper".</small></p>
 				</div>
 
-			  <div class="col-md-6">
-				  
+			  <div class="col-md-6">				  
 					  <%= f.label :precision_type %>
-					  <%#= f.text_field :precision_type, class: "form-control" %>
-						<%#= f.select :precision_type, ['standard_error', 'standard_deviation', '95_ci', 'range', 'not_given'], {:include_blank => "Choose if applicable..."}, class: "form-control" %>
     				<%= f.select :precisiontype_id, Precisiontype.all.collect {|a| ["#{a.precision_type_name}", a.id]}, {:include_blank => "Choose if applicable..."}, class: "form-control" %>
-				</div>
-				<div class="col-md-6">
-					  <%= f.label :precision %>
-					  	<%= f.text_field :precision, class: "form-control" %>
-				</div>
-			</div><!-- End ROW -->
-			
-			<div class="row">
-			  <div class="col-md-6">
-					  <%= f.label :precision_upper %>
-					  	<%= f.text_field :precision_upper, class: "form-control" %>
 				</div>
 				<div class="col-md-6">
 					  <%= f.label :replicates %>
 					  	<%= f.text_field :replicates, class: "form-control" %>
+				</div>
+			</div><!-- End ROW -->
+			
+			<div class="row">
+				<div class="col-md-6">
+				  <%= f.label :precision_value %>
+				  <%= f.text_field :precision, class: "form-control" %>
+				</div>
+				<div class="form-group range">
+				  <div class="col-md-6">
+					  <%= f.label :precision_upper_value %>
+				  	<%= f.text_field :precision_upper, class: "form-control" %>
+				 	</div>
 				</div>
 			</div><!-- End ROW -->
 		</div>
@@ -202,3 +128,101 @@
 	</div> <!-- End Well -->
 </div> <!-- End Nested-fields -->
 
+<script>
+  var a = 0;
+  $(document).ready(function() {
+  	$('select.my_standard').select2();
+  	$('select.my_methodology').select2();
+		$('select.my_trait').select2();
+		$('select.my_methodology').select2();
+
+    $('.my_trait').change(function() {
+      $.ajax({
+        url: "/observations/update_values",
+        cache: false,
+        data: {
+        			element_id: $(this).attr('id'),
+							trait_id: $(this).val()
+							//measurement_id: $(this).parents('.nested-fields').find('.measurement_id').attr("value")
+				},
+        dataType: "script"
+
+      });
+    });
+  });
+
+	function process_precision() {
+
+		var has_precision = <%= raw Valuetype.where(:has_precision => true).map(&:id).to_json %>.map(String);
+		console.log(has_precision);
+
+	  // Process the precision fields while document loads for first time (new / edit)
+	  var selected_value_type = $('[id*=_valuetype_id]');
+	  selected_value_type.each(function(){
+			console.log($(this).val());
+			console.log($.inArray($(this).val(), has_precision));  
+	    if ($.inArray($(this).val(), has_precision) === -1)
+	      $(this).parents(".nested-fields").find(".precision").hide();
+	    else 
+	      $(this).parents(".nested-fields").find(".precision").show();
+	  });
+
+	  // Add event listener for on change in value_type
+	  $("[id*=_valuetype_id]").on("change", function() {
+      var selected_value;
+      selected_value = $(this).val();
+			console.log($(this).val());
+			console.log($.inArray($(this).val(), has_precision));  		      
+			if ($.inArray($(this).val(), has_precision) === -1) {
+        $(this).parents(".nested-fields").find(".precision").children().val("");
+        $(this).parents(".nested-fields").find(".precision").hide();
+      } else {
+        $(this).parents(".nested-fields").find(".precision").show();
+      }
+    });
+
+		var has_range = <%= raw Precisiontype.where(:has_range => true).map(&:id).to_json %>.map(String);
+		console.log(has_range);
+
+	  // Process the range fields while document loads for first time (new / edit)
+	  var selected_precision_type = $('[id*=_precisiontype_id]');
+	  selected_precision_type.each(function(){
+			console.log($(this).val());
+			console.log($.inArray($(this).val(), has_range));  
+	    if ($.inArray($(this).val(), has_range) === -1)
+	      $(this).parents(".nested-fields").find(".range").hide();
+	    else 
+	      $(this).parents(".nested-fields").find(".range").show();
+	  });
+
+	  // Add event listener for on change in precision_type
+	  $("[id*=_precisiontype_id]").on("change", function() {
+      var selected_precision;
+      selected_precision = $(this).val();
+			console.log($(this).val());
+			console.log($.inArray($(this).val(), has_range));  		      
+			if ($.inArray($(this).val(), has_range) === -1) {
+        $(this).parents(".nested-fields").find(".range").children().val("");
+        $(this).parents(".nested-fields").find(".range").hide();
+      } else {
+        $(this).parents(".nested-fields").find(".range").show();
+      }
+    });
+
+
+	}
+
+
+	$(document).ready(function(){
+	  $('.panel-body').hide();
+
+	  $('.panel-heading').click(function(e){
+	    e.preventDefault();
+	    $(this).next('.panel-body').fadeToggle("slow");
+	  });
+
+	  process_precision()  
+	});
+
+
+</script>

@@ -63,9 +63,9 @@
         <% if current_user.admin? %>
           <strong>Entered by:</strong>
           <% if f.object.id %>
-            <%= f.select :user_id, User.where(:contributor => true).collect {|a| [a.first_name, a.id]}, {:selected => @observation.user_id}, class: "form-control" %>
+            <%= f.select :user_id, User.where(:contributor => true).collect {|a| ["#{a.first_name} #{a.last_name}", a.id]}, {:selected => @observation.user_id}, class: "form-control" %>
           <% else %>
-            <%= f.select :user_id, User.where(:contributor => true).collect {|a| [a.first_name, a.id]}, {:selected => current_user.id}, class: "form-control" %>
+            <%= f.select :user_id, User.where(:contributor => true).collect {|a| ["#{a.first_name} #{a.last_name}", a.id]}, {:selected => current_user.id}, class: "form-control" %>
           <% end %>
         <% else %>
           <strong>Entered by:</strong> <%= current_user.first_name %>
@@ -80,7 +80,6 @@
       <div class="col-md-6">
         <div class="form-group">
           <strong>Approved?</strong>
-          <%#= f.select :approval_status, ['pending', 'approved'], {:selected => @observation.approval_status}, class: "form-control" %>
           <%= f.check_box :approved %>
         </div>
       </div>

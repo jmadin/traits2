@@ -138,7 +138,6 @@
 					  	<%= measurement.id %>
 						</div>
 					  <div class="col-sm-3">
-
 							<% if measurement.trait.traitclass && measurement.trait.traitclass.contextual %>
 					  		<span class="glyphicon glyphicon-eye-open" data-toggle="tooltip" data-placement="top" title="Measurement is contextual"></span>
 							<% end %>
@@ -147,12 +146,8 @@
                 <span class="label label-danger" data-toggle="tooltip" data-placement="right" title="Trait only visible to Editors">hidden</span>
               <% end %>
 						</div>
-
 					  <% if not measurement.trait.hide or (logged_in? && current_user.editor?) %>
-
 						  <div class="col-sm-4">
-
-
 		            <% if measurement.trait.traitvalues.present? %>
 		              <% traitvalue = measurement.trait.traitvalues.where(:value_name => measurement.value) %>
 		              <% if not traitvalue.empty? and traitvalue.first.value_description.present?  %>
@@ -163,12 +158,10 @@
 		            <% else %> 
 									<%= measurement.value %>
 		            <% end %> 
-
 								<% if measurement.standard.present? %>
 						  		(<%= link_to measurement.standard.standard_unit, standard_path(measurement.standard_id) %>)
 								<% end %>
 							</div>
-		  
 
 						  <div class="col-sm-2">
 								<% if measurement.valuetype %>
@@ -179,10 +172,11 @@
 							</div>
 
 						  <div class="col-sm-2">
-								<% if measurement.methodologies %>
-									<% measurement.methodologies.each do |methodology| %>
-										<%= link_to methodology.methodology_name, methodology_path(methodology) %><br>
-									<% end %>
+								<% if measurement.methodology %>
+									0<%= link_to measurement.methodology.methodology_name, methodology_path(measurement.methodology) %><br>
+									<%# measurement.methodologies.each do |methodology| %>
+										<%#= link_to methodology.methodology_name, methodology_path(methodology) %><br>
+									<%# end %>
 								<% else %>
 									<span class="label label-danger">no method</span>
 								<% end %>
@@ -190,21 +184,18 @@
 			 			<% else %>
 						  <div class="col-sm-8">Measurements for this trait have been hidden by an Editor</div>
 			 			<% end %>
-
 					</div>
 
-					
 					<% if measurement.valuetype.has_precision %>
 						<div class="row">
 						  <div class="col-sm-1">
 							</div>
 						  <div class="col-sm-3">
-					      
 							</div>
 							<div class="col-sm-4">
 					      <%= measurement.precision %>
 								<% if measurement.precision_upper && measurement.precision_upper != "" %>
-					      	-<%= measurement.precision_upper %>
+					      	- <%= measurement.precision_upper %>
 					      <% end %> (<%= measurement.precisiontype.precision_type_name %>)
 							</div>
 

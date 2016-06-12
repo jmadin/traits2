@@ -17,9 +17,10 @@
 #/public/releases/
 /public/assets/
 /public/uploads/*
-/db/baad
 /db/*.sqlite3
 /db/*.sqlite3-journal
+/db/baad
+/db/generic
 
 /solr
 /log/*.log
