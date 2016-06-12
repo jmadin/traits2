@@ -4,7 +4,7 @@ class Trait < ActiveRecord::Base
   belongs_to :traitclass
   has_paper_trail
   
-  has_many :measurements, :dependent => :destroy
+  has_many :measurements
   validates :trait_name, :presence => true
   validates :trait_name, :uniqueness => true
   validates :standard_id, :presence => true

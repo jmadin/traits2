@@ -23,13 +23,10 @@
        @observations = Observation.joins(:measurements).where("trait_id = ? AND resource_id = ?", params[:itemid1], params[:itemid2])
       end
     else
-      if @model1 == "trait" or @model1 == "standard"
+      if @model1 == "trait" or @model1 == "standard" or @model1 == "methodology"
         @observations = Observation.where(:id => Measurement.where("#{@model1}_id = ?", params[:itemid1]).map(&:observation_id))
       elsif @model1 == "user"
         @observations = Observation.where("observations.#{@model1}_id = ?", params[:itemid1])
-      elsif @model1 == "methodology"
-        @observations = Observation.where(:id => Measurement.joins(:methodologies).where("measurements_methodologies.methodology_id = ?", params[:itemid1]).map(&:observation_id))
-        # @observations = Observation.where(:id => @methodology.measurements.map(&:observation_id))
       else
         @observations = Observation.where("#{@model1}_id = ?", params[:itemid1])
       end
@@ -284,7 +281,7 @@
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def observation_params
-      params.require(:observation).permit(:user_id, :location_id, :specie_id, :resource_id, :access, :approved, :resource_secondary_id, measurements_attributes: [:id, :user_id, :trait_id, :standard_id, :value, :value_type, :valuetype_id, :precisiontype_id, :precision_type, :precision, :precision_upper, :replicates, :measurement_description, :_destroy, measurements_methodologies_attributes: [:id, :measurement_id, :methodology_id, :_destroy]])
+      params.require(:observation).permit(:user_id, :location_id, :specie_id, :resource_id, :access, :approved, :resource_secondary_id, measurements_attributes: [:id, :user_id, :trait_id, :standard_id, :methodology_id, :value, :value_type, :valuetype_id, :precisiontype_id, :precision_type, :precision, :precision_upper, :replicates, :measurement_description, :_destroy])
     end
 
 end

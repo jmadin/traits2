@@ -1,15 +1,21 @@
 class Measurement < ActiveRecord::Base
   belongs_to :user
   belongs_to :trait
+  belongs_to :methodology
   belongs_to :standard
   belongs_to :valuetype
   belongs_to :precisiontype
+<<<<<<< HEAD
   belongs_to :methodology
 
   belongs_to :observation
   # has_many :measurements_methodologies
   # has_many :methodologies, :through => :measurements_methodologies
   # accepts_nested_attributes_for :measurements_methodologies, reject_if: :all_blank, allow_destroy: true
+=======
+
+  belongs_to :observation
+>>>>>>> single_method
 
   has_paper_trail
   

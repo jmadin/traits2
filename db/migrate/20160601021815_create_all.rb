@@ -53,15 +53,15 @@ class CreateAll < ActiveRecord::Migration
     add_index "measurements", ["user_id"], name: "index_measurements_on_user_id"
     add_index "measurements", ["valuetype_id"], name: "index_measurements_on_valuetype_id"
 
-    create_table "measurements_methodologies", force: :cascade do |t|
-      t.integer  "measurement_id"
-      t.integer  "methodology_id"
-      t.datetime "created_at",     null: false
-      t.datetime "updated_at",     null: false
-    end
+    # create_table "measurements_methodologies", force: :cascade do |t|
+    #   t.integer  "measurement_id"
+    #   t.integer  "methodology_id"
+    #   t.datetime "created_at",     null: false
+    #   t.datetime "updated_at",     null: false
+    # end
 
-    add_index "measurements_methodologies", ["measurement_id"], name: "index_measurements_methodologies_on_measurement_id"
-    add_index "measurements_methodologies", ["methodology_id"], name: "index_measurements_methodologies_on_methodology_id"
+    # add_index "measurements_methodologies", ["measurement_id"], name: "index_measurements_methodologies_on_measurement_id"
+    # add_index "measurements_methodologies", ["methodology_id"], name: "index_measurements_methodologies_on_methodology_id"
 
     create_table "methodologies", force: :cascade do |t|
       t.integer  "user_id"
