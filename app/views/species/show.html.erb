@@ -1,6 +1,9 @@
 <% provide(:title, @specie.specie_name) %>
 
 <div class="col-md-12">
+
+  <%= render 'shared/error_messages', object: @specie %>
+
   <h1>
     <% if not @specie.approved %>
       <span class="glyphicon glyphicon-bell" data-toggle="tooltip" data-placement="top" title="Pending approval"></span>
@@ -14,6 +17,15 @@
   <p>
     <strong>ID:</strong>
     	<%= @specie.id %>
+  </p>
+
+  <p>
+    <strong>Aphia ID:</strong>
+    <% if @specie.aphia_id %>
+      <%= @specie.aphia_id %>
+    <% else %>
+      <span class="label label-danger">No matches for this species name</span>
+    <% end %>
   </p>
 	
 	<% if !@specie.synonyms.blank? %>

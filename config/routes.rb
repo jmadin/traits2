@@ -115,12 +115,6 @@ Traits::Application.routes.draw do
       get :update_random, :on => :member
 
   end
-
-  #match ':controller(/:action(/:id))', via: 'get'
-
-  # resources :users do
-  #   resources :traits
-  # end
   
   resources :traits do
     post :export, :on => :collection
@@ -145,7 +139,6 @@ Traits::Application.routes.draw do
   match '/release',        to: 'static_pages#release',    via: 'get'
   match '/uploads',        to: 'static_pages#uploads',    via: 'get'
 
-  match '/test',  to: 'static_pages#test',   via: 'get'
   match '/procedures',  to: 'static_pages#procedures',   via: 'get'
   match '/editors',     to: 'static_pages#editors',   via: 'get'
   match '/contributors', to: 'static_pages#contributors',   via: 'get'
@@ -153,18 +146,6 @@ Traits::Application.routes.draw do
   match '/bulk_import', to: 'static_pages#bulk_import',   via: 'get'
   match '/documentation',    to: 'static_pages#documentation',   via: 'get'
 
-  # match '/export_specie_trait', to: 'static_pages#export_specie_trait',   via: 'get'
-  # match '/export_location_trait', to: 'static_pages#export_location_trait',   via: 'get'
-  # match '/export_ready_trait', to: 'static_pages#export_ready_trait',   via: 'get'
-
-  # match '/export_release_resources', to: 'static_pages#export_release_resources',   via: 'get'
-  # match '/export_release', to: 'static_pages#export_release',   via: 'get'
-
   match '/doi_new',    to: 'resources#doi_new',   via: 'get'
-
-
-  # dynamic pull-down for trait select
-  # match '/update_values', to: 'measurements#update_values', via: 'get'
-  
 
 end

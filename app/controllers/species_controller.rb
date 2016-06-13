@@ -4,6 +4,8 @@ class SpeciesController < ApplicationController
   before_action :set_specie, only: [:show, :edit, :update, :destroy]
   before_action :admin_user, only: [:destroy, :new, :create, :edit, :update]
 
+  require 'savon'
+
   # GET /species
   # GET /species.json
   def index
@@ -56,7 +58,46 @@ class SpeciesController < ApplicationController
 
   def create
     @specie = Specie.new(specie_params)
-
+    if @specie.specie_name.present?
+      begin
+        client = Savon.client(
+            :wsdl => "http://www.marinespecies.org/aphia.php?p=soap&wsdl=1",
+            :open_timeout => 10,
+            :read_timeout => 10,
+            :log => false
+        )
+        @aphia = client.call(:get_aphia_id, message: { scientificname: "#{@specie.specie_name}" })
+      rescue
+        @specie_name = "Invalid"
+        @specie.errors.add(:base, 'Server not responding')
+      end
+      @aphia_id = @aphia.body[:get_aphia_id_response][:return]
+      if not @aphia_id.is_a?(Hash)
+        @specie.aphia_id = @aphia_id
+      else
+        @specie.aphia_id = nil
+      end
+    end
+    if @specie.aphia_id.present?
+      begin
+        client = Savon.client(
+            :wsdl => "http://www.marinespecies.org/aphia.php?p=soap&wsdl=1",
+            :open_timeout => 10,
+            :read_timeout => 10,
+            :log => false
+        )
+        @aphia = client.call(:get_aphia_name_by_id, message: { id: "#{@specie.aphia_id}" })
+      rescue
+        @aphia = "Invalid"
+        @specie.errors.add(:aphia_id, 'The aphia ID invalid')
+      end
+      @specie_name = @aphia.body[:get_aphia_name_by_id_response][:return]
+      if not @specie_name.is_a?(Hash)
+        @specie.specie_name = @specie_name
+      else
+        @specie.aphia_id = nil
+      end
+    end
     if @specie.save
       redirect_to @specie, flash: {success: "Species was successfully created." }
     else
@@ -65,6 +106,53 @@ class SpeciesController < ApplicationController
   end
 
   def update
+    if params[:specie][:specie_name].present?
+      begin
+        client = Savon.client(
+            :wsdl => "http://www.marinespecies.org/aphia.php?p=soap&wsdl=1",
+            :open_timeout => 10,
+            :read_timeout => 10,
+            :log => false
+        )
+        @aphia = client.call(:get_aphia_id, message: { scientificname: "#{params[:specie][:specie_name]}" })
+      rescue
+        @specie_name = "Invalid"
+        @specie.errors.add(:base, 'Server not responding')
+      end
+
+      # puts "=============================================".blue
+      # puts @aphia.body[:get_aphia_id_response][:return]
+      # puts "=============================================".blue
+
+      @aphia_id = @aphia.body[:get_aphia_id_response][:return]
+
+      if not @aphia_id.is_a?(Hash)
+        params[:specie][:aphia_id] = @aphia_id
+      else
+        params[:specie][:aphia_id] = nil
+      end
+    end
+    if params[:specie][:aphia_id].present?
+      begin
+        client = Savon.client(
+            :wsdl => "http://www.marinespecies.org/aphia.php?p=soap&wsdl=1",
+            :open_timeout => 10,
+            :read_timeout => 10,
+            :log => false
+        )
+        @aphia = client.call(:get_aphia_name_by_id, message: { id: "#{params[:specie][:aphia_id]}" })
+      rescue
+        @aphia = "Invalid"
+        @specie.errors.add(:aphia_id, 'The aphia ID invalid')
+      end
+      @specie_name = @aphia.body[:get_aphia_name_by_id_response][:return]
+      if not @specie_name.is_a?(Hash)
+        params[:specie][:specie_name] = @specie_name
+      else
+        params[:specie][:aphia_id] = nil
+      end
+    end
+
     if @specie.update(specie_params)
       redirect_to @specie, flash: {success: "Species was successfully updated." }
     else

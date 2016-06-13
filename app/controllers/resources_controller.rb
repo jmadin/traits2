@@ -3,10 +3,11 @@ class ResourcesController < ApplicationController
   before_action :admin_user, only: [:destroy, :expunge, :status]
   before_action :set_resource, only: [:show, :edit, :update, :destroy, :expunge, :doi, :duplicates]
 
+  require 'uri'
+
   def index
     @search = Resource.search do
       fulltext params[:search]
-      
       if params[:count]
         order_by :count_sortable, :desc
       else
@@ -99,27 +100,7 @@ class ResourcesController < ApplicationController
 
   end
 
-  def edit
-
-    # if @resource.doi_isbn.present?
-    #   begin
-    #     @doi = JSON.load(open("https://api.crossref.org/works/#{@resource.doi_isbn}"))
-    #     if @doi["message"]["author"][0]["family"] == "Peresson"
-    #       @doi = "Invalid"
-    #     end
-    #   rescue
-    #     @doi = "Invalid"
-    #   end
-    # end
-
-    # if (not @resource.doi_isbn.present? or @doi == "Invalid") and (@resource.resource_type == "paper" or @resource.resource_type.blank?)
-    #   begin
-    #     @sug = JSON.load(open("https://api.crossref.org/works?query=#{@resource.title.tr(" ", "+")}&rows=3"))
-    #   rescue
-    #     @sug = "Invalid"
-    #   end        
-    # end
-    
+  def edit    
   end
 
   def create
@@ -139,21 +120,34 @@ class ResourcesController < ApplicationController
     end
 
     if @doi and not @doi == "Invalid"
-      authors = ""
+      authors = []
       @doi["message"]["author"].each do |a|
         if a["family"].present?
-          authors = authors + "#{a["family"].titleize}, "
+          authors << a["family"]
         end
         if a["given"].present?
-          authors = authors + "#{a["given"].titleize}, "
+          given = a["given"].split(/ |,/)
+          if given.length > 1
+            temp = []
+            given.each do |g|
+              temp << "#{g[0].capitalize}."
+            end
+            authors << temp.join(" ")
+          else
+            if a["given"].length == 2 and not a["given"].include? "."
+              authors << "#{a["given"][0]}. #{a["given"][1]}."
+            else
+              authors << "#{a["given"][0].titleize}."
+            end
+          end
         end
       end
-
+      authors = authors.join(", ")
       @resource.author = authors
       @resource.year = @doi["message"]["issued"]["date-parts"][0][0]
       @resource.title = @doi["message"]["title"][0]
       @resource.journal = @doi["message"]["container-title"][0]
-      @resource.volume_pages = @doi["message"]["volume"], @doi["message"]["page"]
+      @resource.volume_pages = "#{@doi["message"]["volume"]}, #{@doi["message"]["page"]}"
     end
 
     if @resource.save
@@ -167,10 +161,7 @@ class ResourcesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /resources/1
-  # PATCH/PUT /resources/1.json
   def update
-    require 'uri'
 
     if params[:resource].blank?
       params[:resource] = @resource.attributes
@@ -213,27 +204,11 @@ class ResourcesController < ApplicationController
         end
       end
       authors = authors.join(", ")
-
       params[:resource][:author] = authors
       params[:resource][:year] = @doi["message"]["issued"]["date-parts"][0][0]
       params[:resource][:title] = @doi["message"]["title"][0]
       params[:resource][:journal] = @doi["message"]["container-title"][0]
       params[:resource][:volume_pages] = "#{@doi["message"]["volume"]}, #{@doi["message"]["page"]}"
-
-    else
-      # author_vec = []
-      # authors = params[:resource][:author].split(",")
-      # authors.each do |author|
-      #   temp = author.strip.split(" ")
-      #   author_vec << temp[0]
-      #   i_vec = []
-      #   temp[1].split("").each do |i|
-      #     i_vec << "#{i}."
-      #   end
-      #   author_vec << i_vec.join(" ")
-      # end
-      # params[:resource][:author] = author_vec.join(", ")
-
     end
 
     if @resource.update(resource_params)

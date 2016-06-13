@@ -56,11 +56,12 @@ gem 'hirb'
 # for sharding database (main database and temporary database)
 #gem "ar-octopus", :git => "git://github.com/tchandy/octopus.git", :require => "octopus"
 
+gem 'pg',             '0.17.1'
+
 # database setup (postgres), and for Heroku
 group :production do
-  gem 'pg',             '0.17.1'
   gem 'rails_12factor', '0.0.2'
-  gem 'puma',           '3.1.0'
+  # gem 'puma',           '3.1.0'
 end
 
 group :development, :test do
