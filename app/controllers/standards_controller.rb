@@ -1,13 +1,9 @@
 class StandardsController < ApplicationController
-  # before_action :signed_in_user
   before_action :contributor, except: [:index, :show, :export]
   before_action :set_standard, only: [:show, :edit, :update, :destroy]
   before_action :admin_user, only: :destroy
 
-  # GET /standards
-  # GET /standards.json
   def index
-
     @search = Standard.search do
       fulltext params[:search]
       order_by :standard_class_sortable, :asc
@@ -28,46 +24,33 @@ class StandardsController < ApplicationController
 
   end
 
-  # GET /standards/1
-  # GET /standards/1.json
   def show
     @observations = Observation.joins(:measurements).where('measurements.standard_id = ?', @standard.id)
-    # @observations = observation_filter(@observations)
-
-      puts @observations.inspect
-      puts "here"
+    @observations = observation_filter(@observations)
 
     respond_to do |format|
       format.html { @observations = @observations.paginate(page: params[:page]) }
-      format.csv { download_observations(@observations, params[:taxonomy], params[:contextual] || "on", params[:global]) }
-      format.zip{ send_zip(@observations, params[:taxonomy], params[:contextual] || "on", params[:global]) }
+      format.csv { download_observations(@observations) }
+      format.zip { send_zip(@observations) }
     end
-
   end
 
   def export
     if params[:checked]
       @observations = Observation.joins(:measurements).where(:measurements => {:standard_id => params[:checked]})
-      # @observations = observation_filter(@observations)
+      send_zip(@observations)          
     else
-      @observations = []
+      redirect_to standards_url, flash: {danger: "Nothing selected." }
     end
-
-    send_zip(@observations)          
   end
 
-
-  # GET /standards/new
   def new
     @standard = Standard.new
   end
 
-  # GET /standards/1/edit
   def edit
   end
 
-  # POST /standards
-  # POST /standards.json
   def create
     @standard = Standard.new(standard_params)
 
@@ -78,8 +61,6 @@ class StandardsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /standards/1
-  # PATCH/PUT /standards/1.json
   def update
     if @standard.update(standard_params)
       redirect_to @standard, flash: {success: "Standard was successfully updated." }
@@ -88,8 +69,6 @@ class StandardsController < ApplicationController
     end
   end
 
-  # DELETE /standards/1
-  # DELETE /standards/1.json
   def destroy
     @standard.destroy
     respond_to do |format|

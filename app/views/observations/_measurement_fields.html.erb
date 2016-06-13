@@ -59,16 +59,11 @@
 			<div class="col-md-6">
 			  <div class="form-group">
 				  <%= f.label "methodology (recommended)" %> <br/>
-<<<<<<< HEAD
-=======
-
->>>>>>> single_method
 				  <% if !f.object.id %>
     				<%= f.select :methodology_id, Methodology.all.map { |u| [u.methodology_name, u.id] }, { include_blank: "Choose Methodology..." }, { id: 'simple-example', :style => "width: 250px;", class: "my_methodology" } %>
 				  <% else %>
     				<%= f.select :methodology_id, Methodology.all.map { |u| [u.methodology_name, u.id] }, { include_blank: "Choose Methodology..." }, { id: 'simple-example', :style => "width: 250px;" } %>
 				  <% end %>
-<<<<<<< HEAD
 
 <!-- 				    <div id="measurements_methodologies">
 				      <%#= f.fields_for :measurements_methodologies do |measurements_methodology| %>
@@ -80,8 +75,6 @@
 				    </div>
  -->
 
-=======
->>>>>>> single_method
 				</div>
 			</div>
 		</div><!-- End ROW -->

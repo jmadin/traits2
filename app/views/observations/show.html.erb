@@ -173,14 +173,10 @@
 
 						  <div class="col-sm-2">
 								<% if measurement.methodology %>
-<<<<<<< HEAD
-									0<%= link_to measurement.methodology.methodology_name, methodology_path(measurement.methodology) %><br>
+									<%= link_to measurement.methodology.methodology_name, methodology_path(measurement.methodology) %><br>
 									<%# measurement.methodologies.each do |methodology| %>
 										<%#= link_to methodology.methodology_name, methodology_path(methodology) %><br>
 									<%# end %>
-=======
-									<%= link_to measurement.methodology.methodology_name, methodology_path(measurement.methodology) %><br>
->>>>>>> single_method
 								<% else %>
 									<span class="label label-danger">no method</span>
 								<% end %>

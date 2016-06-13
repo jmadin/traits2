@@ -14,8 +14,7 @@ class UsersController < ApplicationController
     puts "here"
     @user = User.find(params[:id])
     @observations = Observation.where(:user_id => @user.id)
-
-    # @observations = observation_filter(@observations)
+    @observations = observation_filter(@observations)
     @observations = @observations.order('created_at DESC')
 
     if params[:resource].present?
@@ -53,8 +52,8 @@ class UsersController < ApplicationController
       else
         format.html { @observations = @observations.paginate(page: params[:page]) }
       end
-      format.csv { download_observations(@observations, params[:taxonomy], params[:contextual] || "on", params[:global]) }
-      format.zip{ send_zip(@observations, params[:taxonomy], params[:contextual] || "on", params[:global]) }
+      format.csv { download_observations(@observations) }
+      format.zip{ send_zip(@observations) }
     end
   end
 

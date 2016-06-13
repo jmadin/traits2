@@ -1,11 +1,15 @@
 class TraitclassesController < ApplicationController
   before_action :editor
   before_action :set_traitclass, only: [:edit, :update, :destroy]
-  # before_action :contributor, except: [:index, :show, :export]
   before_action :admin_user, only: :destroy
 
   def index
     @traitclasses = Traitclass.all
+
+    respond_to do |format|
+      format.html
+      format.csv { send_data Traitclass.all.to_csv }      
+    end    
   end
 
   def new

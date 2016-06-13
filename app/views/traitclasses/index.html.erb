@@ -39,42 +39,44 @@
   </li>
 
   <% @traitclasses.each do |traitclass| %>
-      <li class="list-group-item">              
-        <div class="row">
-          <div class="col-md-1" style="color: lightgrey;">
-            <%= traitclass.id %>
-          </div>
+    <li class="list-group-item">              
+      <div class="row">
+        <div class="col-md-1" style="color: lightgrey;">
+          <%= traitclass.id %>
+        </div>
 
-          <div class="col-md-2">
-            <% if traitclass.contextual %>
-              <span class="glyphicon glyphicon-eye-open" data-toggle="tooltip" data-placement="top" title="Contextual"></span>
+        <div class="col-md-2">
+          <% if traitclass.contextual %>
+            <span class="glyphicon glyphicon-eye-open" data-toggle="tooltip" data-placement="top" title="Contextual"></span>
+          <% end %>
+          <%= traitclass.class_name %>
+        </div>
+
+        <div class="col-md-3">
+          <%= traitclass.class_description %>
+        </div>
+
+        <div class="col-md-1">
+        </div>
+
+        <div class="col-md-3">
+            <%= Trait.where(:traitclass => traitclass).length %>
+        </div>
+
+        <div class="col-md-2">
+          <div class="btn-group">
+            <%#= link_to 'Show', observation_path(issue.observation), class: "btn btn-xs btn-default" %>
+            <%= link_to 'Edit', edit_traitclass_path(traitclass), class: "btn btn-default btn-xs" %>
+            <% if logged_in? && current_user.editor? %>
+              <%= link_to 'Delete', traitclass, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-xs btn-danger" %>
             <% end %>
-            <%= traitclass.class_name %>
-          </div>
-
-          <div class="col-md-3">
-            <%= traitclass.class_description %>
-          </div>
-
-          <div class="col-md-1">
-          </div>
-
-          <div class="col-md-3">
-              <%= Trait.where(:traitclass => traitclass).length %>
-          </div>
-
-          <div class="col-md-2">
-            <div class="btn-group">
-              <%#= link_to 'Show', observation_path(issue.observation), class: "btn btn-xs btn-default" %>
-              <%= link_to 'Edit', edit_traitclass_path(traitclass), class: "btn btn-default btn-xs" %>
-              <% if logged_in? && current_user.editor? %>
-                <%= link_to 'Delete', traitclass, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-xs btn-danger" %>
-              <% end %>
-            </div>
           </div>
         </div>
-      </li>
-    <% end %>   
-  </ul>
-</div>
+      </div>
+    </li>
+  <% end %>   
+</ul>
 
+<div class="col-sm-12">
+  <p>Download full trait class list as a <%= link_to "csv", traitclasses_path(format: "csv") %>.</p>
+</div>

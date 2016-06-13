@@ -21,17 +21,10 @@ class ObservationImportsController < ApplicationController
   end
 
   def approve
-    # if not current_user.admin?
-    #   @observations = Observation.where(:approval_status => "pending", :user_id => current_user.id)
-    # else
-      # @observations = Observation.where(:approval_status => "pending")
-    # end
-
-    # @observations = Observation.where(:approval_status => "pending", :id => Measurement.joins(:trait).where("traits.user_id = ?", current_user.id).map(&:observation_id))
-
-    @observations = Observation.where(:approval_status => "pending", :id => Measurement.joins(:trait).where("traits.user_id = ?", current_user.id).map(&:observation_id)).paginate(page: params[:page])
-
-    # @observations = Observation.where(:approval_status => 'pending').joins(measurements: :trait).where("trait.user_id = ?", current_user.id)
+    @observations = Observation.where("approved = ? AND id IN (?)", false, Measurement.joins(:trait).where("traits.user_id = ?", current_user.id).map(&:observation_id)).paginate(page: params[:page])
+      puts "=============================".red
+      puts @observations.inspect
+      puts "=============================".red
 
     @pending = true
 
@@ -41,7 +34,7 @@ class ObservationImportsController < ApplicationController
       
       observation = @observations.find_by_id(params[:item_id])
       if not reject
-        observation.approval_status = "approved"
+        observation.approved = true
         observation.save!
       else
         observation.destroy!

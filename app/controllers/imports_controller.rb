@@ -37,19 +37,19 @@ class ImportsController < ApplicationController
 	
 	def approve
 		if not current_user.admin?
-			@species = Specie.where(:approval_status => "pending", :user_id => current_user.id )
-			@locations = Location.where(:approval_status => "pending", :user_id => current_user.id)
-			@traits = Trait.where(:approval_status => "pending", :user_id => current_user.id)
-			@standards = Standard.where(:approval_status => "pending", :user_id => current_user.id)
-			@resources = Resource.where(:approval_status => "pending", :user_id => current_user.id)
-			@observations = Observation.where(:approval_status => "pending", :user_id => current_user.id)
+			@species = Specie.where(approved: false, :user_id => current_user.id )
+			@locations = Location.where(approved: false, :user_id => current_user.id)
+			@traits = Trait.where(approved: false, :user_id => current_user.id)
+			@standards = Standard.where(approved: false, :user_id => current_user.id)
+			@resources = Resource.where(approved: false, :user_id => current_user.id)
+			@observations = Observation.where(approved: false, :user_id => current_user.id)
 		else
-			@species = Specie.where(:approval_status => "pending")
-			@locations = Location.where(:approval_status => "pending")
-			@traits = Trait.where(:approval_status => "pending")
-			@standards = Standard.where(:approval_status => "pending")
-			@resources = Resource.where(:approval_status => "pending")
-			@observations = Observation.where(:approval_status => "pending")
+			@species = Specie.where(approved: false)
+			@locations = Location.where(approved: false)
+			@traits = Trait.where(approved: false)
+			@standards = Standard.where(approved: false)
+			@resources = Resource.where(approved: false)
+			@observations = Observation.where(approved: false)
 		end
 
 		reject = params[:reject]

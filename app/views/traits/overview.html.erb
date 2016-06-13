@@ -82,7 +82,7 @@
 				  	<%= trait.id %>.
 				  	<%= link_to trait.trait_name, trait_path(trait), 'data-no-turbolink' => true %><br>
 					  <span class="label label-default"><%= trait.traitclass.class_name if trait.traitclass %></span><br>
-				  	(<%= trait.user.first_name %>)<br>
+				  	(<%= trait.user.first_name %> <%= trait.user.last_name %>)<br>
 					  <%= link_to 'Edit', edit_trait_path(trait), class: "btn btn-default btn-xs" %>
 						<%= link_to "Meta", meta_trait_path(trait), class: "btn btn-default btn-xs" %>
 						<%= link_to "Duplicates", duplicates_trait_path(trait), class: "btn btn-default btn-xs" %>
@@ -111,12 +111,8 @@
 					<div class="col-md-1">
 					  <%= Measurement.where("trait_id = ?", trait.id).joins(:observation).where("access IS 't'").size %>
 				  </div>
-	<!-- 						<div class="col-md-1">
-					  <%#= check_box_tag "checked[]", trait.id, checked = true %>
-				  </div> -->
 			  </div>
 		  </li>
-<% end %>
-		</ul>		
-
+		<% end %>
+	</ul>		
 </div>

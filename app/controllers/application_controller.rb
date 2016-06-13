@@ -14,34 +14,22 @@ class ApplicationController < ActionController::Base
     @standard = Standard.find(Trait.find(params[:trait_id]).standard_id)
   end
   
-  def observation_filter(observations, traits=false, release=false)
-
-    if release
-      observations = observations.where("observations.access = ?", false)
-    else
-      if logged_in?
-        if current_user.admin?
-          observations = observations
-        elsif current_user.editor? | current_user.contributor?
-          observations = observations.where("observations.access = ? OR (observations.user_id = ? AND observations.access = ?)", false, current_user.id, true)
-        else
-          observations = observations.where("observations.access = ?", false)
-        end
+  def observation_filter(observations)
+    if logged_in?
+      if current_user.admin?
+        observations = observations
+      elsif current_user.editor? | current_user.contributor?
+        observations = observations.where("observations.access = ? OR (observations.user_id = ? AND observations.access = ?)", true, current_user.id, false)
       else
-        observations = observations.where("observations.access = ?", false)
+        observations = observations.where("observations.access = ?", true)
       end
-    end
-        
-    if not traits or not (logged_in? && current_user.editor?)
-      puts "#{not @trait}"
-      puts "----"
-      puts "#{not (logged_in? && current_user.editor?)}"
-      observations = observations.remove_hidden
+    else
+      observations = observations.where("observations.access = ?", true)
     end
 
-    # observations = observations.joins(:specie).order('species.specie_name ASC')
-    
-    observations = observations.order_species
+    if observations.present?
+      observations = observations.order_species
+    end
     observations
   end
 
@@ -101,6 +89,20 @@ class ApplicationController < ActionController::Base
   end
 
 
+  def download_observations(observations)
+
+    if request.url.include? 'resources.csv'
+      csv_string = export_resources(observations)
+      filename = 'resources'
+    else
+      csv_string = export_data(observations)
+      filename = 'data'
+    end
+    send_data csv_string, 
+      :type => 'text/csv; charset=iso-8859-1; header=present', :stream => true,
+      :disposition => "attachment; filename=#{filename}_#{Date.today.strftime('%Y%m%d')}.csv"
+  end
+
   # NEW EXPORTER
 
   def export_resources(observations)
@@ -124,7 +126,7 @@ class ApplicationController < ActionController::Base
     ids = observations.map(&:id).join(',')      
     observations = Observation.find_by_sql("SELECT 
       obs.id AS observation_id, 
-      CASE WHEN obs.access='t' THEN 1 ELSE 0 END AS access, 
+      obs.access AS access, 
       obs.user_id, obs.specie_id, spe.specie_name, obs.location_id, loc.location_name, 
       CASE WHEN loc.latitude=0 THEN NULL ELSE loc.latitude END AS latitude, 
       CASE WHEN loc.longitude=0 THEN NULL ELSE loc.longitude END AS longitude, 
@@ -133,6 +135,7 @@ class ApplicationController < ActionController::Base
       mea.trait_id, tra.trait_name, 
       tcl.class_name AS trait_class_name, 
       mea.standard_id, sta.standard_unit, 
+      mea.methodology_id, meth.methodology_name,
       mea.value, 
       vty.value_type_name AS value_type_name, 
       mea.precision, 
@@ -156,10 +159,12 @@ class ApplicationController < ActionController::Base
             ON mea.precisiontype_id = pty.id
         INNER JOIN standards AS sta
             ON mea.standard_id = sta.id
+        LEFT OUTER JOIN methodologies AS meth
+            ON mea.methodology_id = meth.id
       WHERE obs.id IN (#{ids})
       ORDER BY obs.id;")
     
-    header = ["observation_id", "access", "user_id", "specie_id", "specie_name", "location_id", "location_name", "latitude", "longitude", "resource_id", "resource_secondary_id", "measurement_id", "trait_id", "trait_name", "trait_class_name", "standard_id", "standard_unit", "value", "value_type_name", "precision", "precision_type_name", "precision_upper", "replicates", "notes"]
+    header = ["observation_id", "access", "user_id", "specie_id", "specie_name", "location_id", "location_name", "latitude", "longitude", "resource_id", "resource_secondary_id", "measurement_id", "trait_id", "trait_name", "trait_class_name", "standard_id", "standard_unit", "methodology_id", "methodology_name", "value", "value_type_name", "precision", "precision_type_name", "precision_upper", "replicates", "notes"]
 
     csv_string = CSV.generate do |csv|
       csv << header
@@ -173,7 +178,7 @@ class ApplicationController < ActionController::Base
 
   def send_zip(observations)
 
-    puts "send_zip".green
+    observations = observation_filter(observations)
 
     data_csv_string = export_data(observations)
     data_file_path = "public/data.csv"
@@ -200,12 +205,9 @@ class ApplicationController < ActionController::Base
 
   end
 
-  
   def upload_csv
     @name = params[:controller]  
   end
-
-
 
   private
 
@@ -214,5 +216,4 @@ class ApplicationController < ActionController::Base
       session[:last_seen_at] = Time.now
     end
 
-  
 end

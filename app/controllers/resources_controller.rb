@@ -1,11 +1,9 @@
 class ResourcesController < ApplicationController
-
   before_action :contributor, except: [:index, :show, :export, :update]
   before_action :admin_user, only: [:destroy, :expunge, :status]
   before_action :set_resource, only: [:show, :edit, :update, :destroy, :expunge, :doi, :duplicates]
 
   def index
-
     @search = Resource.search do
       fulltext params[:search]
       
@@ -30,9 +28,7 @@ class ResourcesController < ApplicationController
   end
 
   def status
-
     @resources = Resource.where("doi_isbn IS NULL OR doi_isbn = ?", "").paginate(page: params[:page], per_page: 10)
-
     respond_to do |format|
       format.html
     end    
@@ -43,8 +39,8 @@ class ResourcesController < ApplicationController
     @primary = Observation.where('resource_id = ?', @resource.id)
     @secondary = Observation.where('resource_secondary_id = ?', @resource.id)
 
-    # @primary = observation_filter(@primary)
-    # @secondary = observation_filter(@secondary)
+    @primary = observation_filter(@primary)
+    @secondary = observation_filter(@secondary)
 
     @locations = Location.where("id IN (?) OR id IN (?)", @primary.map(&:location_id), @secondary.map(&:location_id))
 
@@ -53,15 +49,14 @@ class ResourcesController < ApplicationController
         @primary = @primary.paginate(:page=> params[:page])
         @secondary = @secondary.paginate(:page=> params[:page])
       }
-      format.csv { download_observations(@primary, params[:taxonomy], params[:contextual] || "on", params[:global]) }
-      format.zip{ send_zip(@primary, params[:taxonomy], params[:contextual] || "on", params[:global]) }
+      format.csv { download_observations(@primary) }
+      format.zip{ send_zip(@primary) }
     end
 
   end
 
   def duplicates
-
-    @duplicates = Observation.joins(:measurements).select("specie_id, resource_id, location_id, trait_id, standard_id, value, group_concat(observation_id) as ids").where("resource_id = ?", params[:id]).where("trait_id NOT IN (?) AND value_type != 'raw_value'", Trait.joins(:traitclass).where("class_name = 'Contextual'").map(&:id)).group(:specie_id, :resource_id, :location_id, :trait_id, :standard_id, :value).having("count(*) > 1")
+    @duplicates = Observation.joins(:measurements).select("specie_id, resource_id, location_id, trait_id, standard_id, value, group_concat(observation_id) as ids").where("resource_id = ?", params[:id]).where("trait_id NOT IN (?) AND valuetype_id NOT IN (?)", Trait.joins(:traitclass).where("class_name = 'Contextual'").map(&:id), Valuetype.where(has_precision: false).map(&:id)).group(:specie_id, :resource_id, :location_id, :trait_id, :standard_id, :value).having("count(*) > 1")
 
     respond_to do |format|
       format.html { }
@@ -72,7 +67,6 @@ class ResourcesController < ApplicationController
 
   end
 
-  # GET /resources/new
   def new
     @resource = Resource.new
   end
@@ -105,7 +99,6 @@ class ResourcesController < ApplicationController
 
   end
 
-  # GET /resources/1/edit
   def edit
 
     # if @resource.doi_isbn.present?
@@ -129,8 +122,6 @@ class ResourcesController < ApplicationController
     
   end
 
-  # POST /resources
-  # POST /resources.json
   def create
     @resource = Resource.new(resource_params)
 
@@ -146,8 +137,6 @@ class ResourcesController < ApplicationController
         @resource.errors.add(:base, 'The oid is invalid')
       end
     end
-
-    # puts @doi["message"].green
 
     if @doi and not @doi == "Invalid"
       authors = ""
@@ -165,7 +154,6 @@ class ResourcesController < ApplicationController
       @resource.title = @doi["message"]["title"][0]
       @resource.journal = @doi["message"]["container-title"][0]
       @resource.volume_pages = @doi["message"]["volume"], @doi["message"]["page"]
-
     end
 
     if @resource.save
@@ -182,18 +170,11 @@ class ResourcesController < ApplicationController
   # PATCH/PUT /resources/1
   # PATCH/PUT /resources/1.json
   def update
-
     require 'uri'
-
-    puts "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"
-    puts @resource.to_json
 
     if params[:resource].blank?
       params[:resource] = @resource.attributes
     end
-
-    puts "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"
-    puts params[:resource]
 
     if params[:resource][:doi_isbn].present? and (params[:resource][:resource_type] == "paper" or params[:resource][:resource_type].blank?)
       begin
@@ -207,7 +188,6 @@ class ResourcesController < ApplicationController
         @resource.errors.add(:base, 'The oid is invalid')
       end
     end
-
 
     if @doi and not @doi == "Invalid"
       authors = []
@@ -256,9 +236,6 @@ class ResourcesController < ApplicationController
 
     end
 
-
-
-
     if @resource.update(resource_params)
       redirect_to @resource, flash: {success: "Resource was successfully updated." }
     else
@@ -266,8 +243,6 @@ class ResourcesController < ApplicationController
     end
   end
 
-  # DELETE /resources/1
-  # DELETE /resources/1.json
   def destroy
     @resource.destroy
     respond_to do |format|
@@ -285,15 +260,12 @@ class ResourcesController < ApplicationController
   end
 
   def export
-
     if params[:checked]
       @observations = Observation.where(:resource_id => params[:checked])
-      # @observations = observation_filter(@observations)
+      send_zip(@observations)                   
     else
-      @observations = []
+      redirect_to resources_url, flash: {danger: "Nothing selected." }
     end
-    
-    send_zip(@observations)                   
  end
 
   private

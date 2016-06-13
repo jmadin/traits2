@@ -1,14 +1,6 @@
- class ObservationsController < ApplicationController
-
-  # before_action :contributor, only: [:new, :create ]
-  before_action :enterer, except: [:show, :count]
-  # before_action :enterer, only: [:new, :create, :edit, :update, :destroy]
+class ObservationsController < ApplicationController
+  before_action :contributor, except: [:show, :count]
   before_action :set_observation, only: [:show, :edit, :update, :destroy]
-  # before_action :admin, :destroy
-
-  # autocomplete :location, :name, :full => true
-  # autocomplete :specie, :name, :full => true
-  # autocomplete :resource, :author, :full => true, :extra_data => [:year], :display_value => :resource_fill
 
   def count
 
@@ -98,10 +90,7 @@
     redirect_to user_path(@user, :page => @page, :search => @search, :resource => params[:resource], :location => params[:location], :specie => params[:specie], :trait => params[:trait]), flash: {success: "Privacy updated." }
   end
 
-  # GET /observations
-  # GET /observations.json
   def index
-
     puts "#{current_user.id}".green
 
     @search = Observation.search do

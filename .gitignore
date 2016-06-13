@@ -14,7 +14,7 @@
 *.docx
 *.dat
 
-#/public/releases/
+/public/releases/*
 /public/assets/
 /public/uploads/*
 /db/*.sqlite3

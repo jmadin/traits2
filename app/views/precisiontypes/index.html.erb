@@ -5,7 +5,7 @@
 
 <div class="btn-group pull-right">
   <% if logged_in? and current_user.admin? %>  
-    <%= link_to "New Precision Types", new_precisiontype_path, class: "btn btn-primary" %>
+    <%= link_to "New Precision Type", new_precisiontype_path, class: "btn btn-primary" %>
   <% end %>
 </div>
 
@@ -39,39 +39,41 @@
   </li>
 
   <% @precisiontypes.each do |precisiontype| %>
-      <li class="list-group-item">              
-        <div class="row">
-          <div class="col-md-1" style="color: lightgrey;">
-            <%= precisiontype.id %>
-          </div>
+    <li class="list-group-item">              
+      <div class="row">
+        <div class="col-md-1" style="color: lightgrey;">
+          <%= precisiontype.id %>
+        </div>
 
-          <div class="col-md-2">
-            <%= precisiontype.precision_type_name %>
-          </div>
+        <div class="col-md-2">
+          <%= precisiontype.precision_type_name %>
+        </div>
 
-          <div class="col-md-3">
-            <%= precisiontype.precision_type_description %>
-          </div>
+        <div class="col-md-3">
+          <%= precisiontype.precision_type_description %>
+        </div>
 
-          <div class="col-md-1">
-          </div>
+        <div class="col-md-1">
+        </div>
 
-          <div class="col-md-3">
-            <%= precisiontype.has_range %>
-          </div>
+        <div class="col-md-3">
+          <%= precisiontype.has_range %>
+        </div>
 
-          <div class="col-md-2">
-            <div class="btn-group">
-              <%#= link_to 'Show', observation_path(issue.observation), class: "btn btn-xs btn-default" %>
-              <%= link_to 'Edit', edit_precisiontype_path(precisiontype), class: "btn btn-default btn-xs" %>
-              <% if logged_in? && current_user.editor? %>
-                <%= link_to 'Delete', precisiontype, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-xs btn-danger" %>
-              <% end %>
-            </div>
+        <div class="col-md-2">
+          <div class="btn-group">
+            <%#= link_to 'Show', observation_path(issue.observation), class: "btn btn-xs btn-default" %>
+            <%= link_to 'Edit', edit_precisiontype_path(precisiontype), class: "btn btn-default btn-xs" %>
+            <% if logged_in? && current_user.editor? %>
+              <%= link_to 'Delete', precisiontype, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-xs btn-danger" %>
+            <% end %>
           </div>
         </div>
-      </li>
-    <% end %>   
-  </ul>
-</div>
+      </div>
+    </li>
+  <% end %>   
+</ul>
 
+<div class="col-sm-12">
+  <p>Download full precision types list as a <%= link_to "csv", precisiontypes_path(format: "csv") %>.</p>
+</div>

@@ -2,7 +2,7 @@
 
 <div class="col-md-12">
   <h1>
-    <% if @trait.traitclass == "Contextual" %>
+    <% if @trait.traitclass.contextual %>
       <span class="glyphicon glyphicon-eye-open" data-toggle="tooltip" data-placement="top" title="Contextual trait"></span>
     <% end %>
     <%= @trait.trait_name %>
@@ -31,7 +31,7 @@
           <div class="row">
             <div class="col-sm-1" style="color: lightgrey;">
               <%= resource.id %>
-              <% if resource.approval_status == 'pending' %>
+              <% if resource.approved %>
                 <span class="glyphicon glyphicon-warning-sign"  style="color:red;" title="Pending Approval"></span>
               <% end %>
             </div>

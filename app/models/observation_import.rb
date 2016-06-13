@@ -113,7 +113,7 @@ class ObservationImport
         puts "Row #{i}: '#{row["access"]}'".green
 
         # 1. Convert 0 or 1 to true or false for private field
-        if row["access"] == "1" or row["access"].blank?
+        if row["access"] == "1" or row["access"] == "true" or row["access"].blank?
           row["access"] = true
         else
           row["access"] = false
@@ -290,7 +290,6 @@ class ObservationImport
             row["precisiontype_id"] = precision_type.first.id
           end
         end
-
 
         measurement = $observation.measurements.build
 

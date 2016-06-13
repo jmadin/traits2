@@ -6,8 +6,6 @@ class LocationsController < ApplicationController
 
   helper_method :sort_column, :sort_direction
 
-  # GET /locations
-  # GET /locations.json
   def index
 
     @search = Location.search do
@@ -32,40 +30,30 @@ class LocationsController < ApplicationController
   def export
     if params[:checked]
       @observations = Observation.where(:location_id => params[:checked])
-      # @observations = observation_filter(@observations)
+      send_zip(@observations)                   
     else
-      @observations = []
+      redirect_to locations_url, flash: {danger: "Nothing selected." }
     end
-
-    send_zip(@observations)          
   end
 
-
-  # GET /locations/1
-  # GET /locations/1.json
   def show
-
     @observations = Observation.where('location_id = ?', @location.id)
-    # @observations = observation_filter(@observations)
+    @observations = observation_filter(@observations)
     
     respond_to do |format|
       format.html { @observations = @observations.paginate(page: params[:page]) }
-      format.csv { download_observations(@observations, params[:taxonomy], params[:contextual] || "on", params[:global]) }
-      format.zip{ send_zip(@observations, params[:taxonomy], params[:contextual] || "on", params[:global]) }
+      format.csv { download_observations(@observations) }
+      format.zip{ send_zip(@observations) }
     end
   end
 
-  # GET /locations/new
   def new
     @location = Location.new
   end
 
-  # GET /locations/1/edit
   def edit
   end
 
-  # POST /locations
-  # POST /locations.json
   def create
     @location = Location.new(location_params)
 
@@ -76,8 +64,6 @@ class LocationsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /locations/1
-  # PATCH/PUT /locations/1.json
   def update
     if @location.update(location_params)
       redirect_to @location, flash: {success: "Location was successfully updated." }
@@ -86,8 +72,6 @@ class LocationsController < ApplicationController
     end
   end
 
-  # DELETE /locations/1
-  # DELETE /locations/1.json
   def destroy
     @location.destroy
       redirect_to locations_url, flash: {success: "Location was successfully deleted." }

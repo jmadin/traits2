@@ -50,10 +50,10 @@
           </div>
 
           <div class="col-md-3">
-            <% tra = issue.observation.measurements.where(:trait_id => Trait.where("id IN (?) AND traitclass != ?", issue.observation.measurements.map(&:trait_id), "Contextual")).map(&:trait_id) %>
-            <% tra.each do |t| %>
-              <%= mail_to Trait.find(t).user.email %><br>
-            <% end %>
+            <%# tra = issue.observation.measurements.where(:trait_id => Trait.where("id IN (?) AND traitclass != ?", issue.observation.measurements.map(&:trait_id), "Contextual")).map(&:trait_id) %>
+            <%# tra.each do |t| %>
+              <%#= mail_to Trait.find(t).user.email %><br>
+            <%# end %>
           </div>
 
           <div class="col-md-2">

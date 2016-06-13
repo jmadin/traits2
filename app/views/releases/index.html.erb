@@ -1,9 +1,13 @@
 <div class="col-md-12">
   <%= render "shared/index_header" %>
 
+  <%= form_tag export_release_traits_path do %>
+    <%= submit_tag "Make Release Zip", {class: "btn btn-success pull-right"} %>
+  <% end %>
   <br>
   <%= markdown File.open(Rails.root + "public/information/releases.md", 'r').read %>
 </div>
+
 
 <div class="col-sm-12">
 
@@ -40,7 +44,7 @@
 
           <div class="col-sm-2">
             <div class="btn-group pull-right">
-              <% if @snapzips.include?("ctdb_#{release.release_code}") %>
+              <% if @snapzips.include?("#{ENV["SITE_NAME"].downcase}_#{release.release_code}") %>
                 <%= link_to 'Download', release_path(release), class: "btn btn-xs btn-success" %>
               <% else %>
                 <%= link_to 'Missing', nil, class: "btn btn-xs btn-success", disabled: "disabled" %>

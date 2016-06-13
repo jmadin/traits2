@@ -2,7 +2,6 @@ class TraitvaluesController < ApplicationController
   before_action :signed_in_user
   before_action :set_measurement, only: [:show, :edit, :update, :destroy]
   
-
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_measurement

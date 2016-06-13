@@ -19,7 +19,7 @@
   <%#= render "shared/description", :description => @methodology.methodology_description %>
   <p>
     <strong>Description:</strong>
-    <% if not @methodology.methodology_description.empty? %>
+    <% if @methodology.methodology_description %>
       <button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#collapseDescription" aria-expanded="false" aria-controls="collapseDescription">Show</button>
 
       <div class="collapse" id="collapseDescription">

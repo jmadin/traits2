@@ -31,30 +31,30 @@
 
   <% if @duplicates %>
     <ul class="list-group">
-      <% @duplicates.order(:specie_id).each do |dup| %>
+      <% @duplicates.order(:specie_id).each do |duplicate| %>
 
         <li class="list-group-item">             
           <div class="row">
             <div class="col-sm-1">
-              <% dup.ids.each do |id| %>
+              <% duplicate.ids.split(',').each do |id| %>
                 <%= link_to id, observation_path(id), class: "label label-default" %>
               <% end %>
             </div>
             <div class="col-sm-2">
-              <em><%= link_to Specie.select(:specie_name).find_by_id(dup.specie_id).specie_name, specie_path(dup.specie_id) %></em>
+              <em><%= link_to Specie.select(:specie_name).find_by_id(duplicate.specie_id).specie_name, specie_path(duplicate.specie_id) %></em>
             </div>
             <div class="col-sm-3">
-              <%= link_to Resource.select(:author).find_by_id(dup.resource_id).author, resource_path(dup.resource_id) %>
+              <%= link_to Resource.select(:author).find_by_id(duplicate.resource_id).author, resource_path(duplicate.resource_id) %>
             </div>
             <div class="col-sm-2">
-              <%= dup.value %>
+              <%= duplicate.value %>
             </div>
             <div class="col-sm-2">
-              <% standard = Standard.select(:standard_name, :standard_unit).find_by_id(dup.standard_id) %>
-              <%= link_to standard.standard_unit, standard_path(dup.standard_id) %> (<%= standard.standard_name %>)
+              <% standard = Standard.select(:standard_name, :standard_unit).find_by_id(duplicate.standard_id) %>
+              <%= link_to standard.standard_unit, standard_path(duplicate.standard_id) %> (<%= standard.standard_name %>)
             </div>
             <div class="col-sm-2">
-              <%= link_to "Show", specie_trait_path(dup.specie_id, dup.trait_id), class: "btn btn-default btn-xs pull-right" %></p>
+              <%= link_to "Show", specie_trait_path(duplicate.specie_id, duplicate.trait_id), class: "btn btn-default btn-xs pull-right" %></p>
             </div>
           </div>
 

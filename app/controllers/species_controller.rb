@@ -7,7 +7,6 @@ class SpeciesController < ApplicationController
   # GET /species
   # GET /species.json
   def index
-
     @search = Specie.search do
       fulltext params[:search]
       order_by :specie_name_sortable, :asc
@@ -29,40 +28,32 @@ class SpeciesController < ApplicationController
   def export
     if params[:checked]
       @observations = Observation.where(:specie_id => params[:checked])
-      # @observations = observation_filter(@observations)
+      send_zip(@observations)          
     else
-      @observations = []
+      redirect_to species_url, flash: {danger: "Nothing selected." }
     end
-
-    send_zip(@observations)          
   end
 
-  # GET /species/1
-  # GET /species/1.json
   def show
     @map_files = Dir.glob("app/assets/images/*")
 
     @observations = Observation.where(:specie_id => @specie.id)
-    # @observations = observation_filter(@observations)
+    @observations = observation_filter(@observations)
 
     respond_to do |format|
       format.html
-      format.csv { download_observations(@observations, params[:taxonomy], params[:contextual] || "on", params[:global]) }
-      format.zip{ send_zip(@observations, params[:taxonomy], params[:contextual] || "on", params[:global]) }
+      format.csv { download_observations(@observations) }
+      format.zip { send_zip(@observations) }
     end
   end
 
-  # GET /species/new
   def new
     @specie = Specie.new
   end
 
-  # GET /species/1/edit
   def edit
   end
 
-  # POST /species
-  # POST /species.json
   def create
     @specie = Specie.new(specie_params)
 
@@ -73,8 +64,6 @@ class SpeciesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /species/1
-  # PATCH/PUT /species/1.json
   def update
     if @specie.update(specie_params)
       redirect_to @specie, flash: {success: "Species was successfully updated." }
@@ -83,8 +72,6 @@ class SpeciesController < ApplicationController
     end
   end
 
-  # DELETE /species/1
-  # DELETE /species/1.json
   def destroy
     @specie.destroy
     respond_to do |format|
@@ -93,18 +80,17 @@ class SpeciesController < ApplicationController
     end
   end
 
-
   private
 
     def get_specie_csv
       csv_string = CSV.generate do |csv|
-          csv << ["species_id", "master_species", "major_clade", "family_molecules", "family_morphology", "synonym_species", "specie_description"]
+          csv << ["species_id", "specie_name", "synonym_species", "specie_description"]
           Specie.all.each do |specie|
             syn_vec = []
             specie.synonyms.each do |syn|
               syn_vec << syn.synonym_name
             end
-            csv << [specie.id, specie.specie_name, specie.major_clade, specie.family_molecules, specie.family_morphology, syn_vec.join(", "), specie.specie_description]
+            csv << [specie.id, specie.specie_name, syn_vec.join(", "), specie.specie_description]
           end
         end
      return csv_string
@@ -119,8 +105,5 @@ class SpeciesController < ApplicationController
     def specie_params
       params.require(:specie).permit(:specie_name, :specie_description, :aphia_id, :user_id, :approved, synonyms_attributes: [:id, :synonym_name, :synonym_description, :_destroy])
     end
-
-    
-
     
 end

@@ -242,7 +242,7 @@
 					<br><span class="label label-danger">critical</span>
 				</div>
 				<div class="col-md-4">
-					<% obs = Observation.where("access IS 't' AND id IN (?)", Measurement.where("trait_id = ? AND (value_type = ? OR value_type IS NULL)", @trait.id, "").map(&:observation_id)) %>
+					<% obs = Observation.where("access IS 't' AND id IN (?)", Measurement.where("trait_id = ? AND (valuetype_id = ? OR valuetype_id IS NULL)", @trait.id, "").map(&:observation_id)) %>
 					<% if !obs.empty? %>
 						<% obs.each do |o| %>
 							<%= link_to o.id, observation_path(o.id), class: "label label-default" %>
@@ -252,7 +252,7 @@
 					<% end %>
 				</div>
 				<div class="col-md-4">
-					<% obs = Observation.where("access IS 'f' AND id IN (?)", Measurement.where("trait_id = ? AND (value_type = ? OR value_type IS NULL)", @trait.id, "").map(&:observation_id)) %>
+					<% obs = Observation.where("access IS 'f' AND id IN (?)", Measurement.where("trait_id = ? AND (valuetype_id = ? OR valuetype_id IS NULL)", @trait.id, "").map(&:observation_id)) %>
 					<% if !obs.empty? %>
 						<% obs.each do |o| %>
 							<%= link_to o.id, observation_path(o.id), class: "label label-default" %>

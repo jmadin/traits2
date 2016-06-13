@@ -1,16 +1,11 @@
 class TraitsController < ApplicationController
-
-  # before_action :signed_in_user
   before_action :editor, except: [:index, :show, :export]
   before_action :set_trait, only: [:show, :edit, :update, :destroy, :duplicates, :meta, :resources]
   before_action :admin_user, only: :destroy
 
   skip_before_filter :verify_authenticity_token, :only => [:update]
 
-  # GET /traits
-  # GET /traits.json
   def index
-
     @search = Trait.search do
       fulltext params[:search]
 
@@ -29,17 +24,14 @@ class TraitsController < ApplicationController
   end
 
   def resources
-    
     @resources = Resource.where("id IN (?)", Observation.joins(:measurements).where("trait_id = ?", @trait.id).map(&:resource_id).uniq)
 
     respond_to do |format|
       format.html
-      # format.csv { send_data Trait.all.to_csv }
-    end    
+    end
   end
 
   def overview
-
     query = Trait.all
     query = query.where(:released => params[:released]) if not params[:released].blank?
     @traits = query.all
@@ -52,12 +44,10 @@ class TraitsController < ApplicationController
   def export
     if params[:checked]
       @observations = Observation.joins(:measurements).where(:measurements => {:trait_id => params[:checked]})
-      # @observations = observation_filter(@observations, true, params[:release])
+      send_zip(@observations)
     else
-      @observations = []
+      redirect_to traits_url, flash: {danger: "Nothing selected." }
     end
-
-    send_zip(@observations)
   end
 
   def export_release
@@ -67,7 +57,6 @@ class TraitsController < ApplicationController
   end
 
   def show
-
     if params[:specie_id]
       @specie = Specie.find(params[:specie_id])
       @observations = Observation.includes(:specie).joins(:measurements).where('observations.specie_id = ? AND measurements.trait_id = ?', @specie.id, @trait.id)
@@ -84,15 +73,12 @@ class TraitsController < ApplicationController
       @rec_traitvalues = @trait.traitvalues.map(&:value_name).uniq
     end
 
-    # @observations = observation_filter(@observations, true)
+    @observations = observation_filter(@observations)
 
-    @methodologies = Methodology.joins(:measurements).where("observation_id IN (?) AND trait_id = ?", @observations.map(&:id), @trait.id)
-
+    @methodologies = Methodology.where(:id => Measurement.where("observation_id IN (?) AND trait_id = ?", @observations.map(&:id), @trait.id).map(&:methodology_id))
     @standards = Standard.where(:id => Measurement.where("observation_id IN (?) AND trait_id = ?", @observations.map(&:id), @trait.id).map(&:standard_id))
     
     data_table = GoogleVisualr::DataTable.new
-
-    puts @trait.standard
 
     if @trait.standard
       if @trait.standard.standard_unit != "id" && @trait.standard.standard_unit != "text"
@@ -103,16 +89,12 @@ class TraitsController < ApplicationController
           @trait.measurements.collect(&:value).uniq.each do |i|
             data_table.add_row([i, @trait.measurements.where("value LIKE ?", i).size])
           end
-
-  #        data_table.sort(1)
-
           option = { width: 250, height: 250, legend: 'none' }
           @chart = GoogleVisualr::Interactive::PieChart.new(data_table, option)
         else
           data_table.new_column('number')
 
           p = 0
-          # @trait.measurements.map(&:value).map{|v| v.to_d}.sort.reverse.each do |i|
           @trait.measurements.each do |i|
             if @trait.log_data
               data_table.add_row([Math.log10(i.value.to_d)])
@@ -120,39 +102,37 @@ class TraitsController < ApplicationController
               data_table.add_row([i.value.to_d])
             end
           end
-
           if @trait.log_data
             option = { width: 250, height: 250, legend: 'none', :vAxis => { :title => "Frequency" }, :hAxis => { :title => "#{@trait.trait_name} (#{@trait.standard.standard_unit}), log10" } }
           else
             option = { width: 250, height: 250, legend: 'none', :vAxis => { :title => "Frequency" }, :hAxis => { :title => "#{@trait.trait_name} (#{@trait.standard.standard_unit})" } }
           end
-
           @chart = GoogleVisualr::Interactive::Histogram.new(data_table, option)
-          # @chart.add_listener("select", "function(e) { EventHandler(e, chart, data_table) }")
         end
      end
    end
-    # @data_table = data_table
 
     respond_to do |format|
       format.html { @observations = @observations.paginate(page: params[:page]) }
-      format.csv { download_observations(@observations, params[:taxonomy], params[:contextual] || "on", params[:global]) }
-      format.zip{ send_zip(@observations, params[:taxonomy], params[:contextual] || "on", params[:global]) }
+      format.csv { download_observations(@observations) }
+      format.zip { send_zip(@observations) }
     end
 
   end
 
   def meta
-    # params[:editor] = "ready_for_release" if params[:status].blank?
     query = Trait.all
     query = query.editor(params[:editor]) if not params[:editor].blank?
-    query = query.where(:release_status => params[:release_status]) if not params[:release_status].blank?
+    query = query.where(:released => params[:release_status]) if not params[:release_status].blank?
     @traits = query.all
   end
 
   def duplicates
 
-    @duplicates = Observation.joins(:measurements).select("specie_id, resource_id, location_id, trait_id, standard_id, value, group_concat(observation_id) as ids").where("trait_id = ?", params[:id]).where("trait_id NOT IN (?) AND value_type != 'raw_value'", Trait.joins(:traitclass).where("class_name = 'Contextual'").map(&:id)).group(:specie_id, :resource_id, :location_id, :trait_id, :standard_id, :value).having("count(*) > 1")
+    @duplicates = Observation.joins(:measurements).select("specie_id, resource_id, location_id, trait_id, standard_id, value, group_concat(observation_id) as ids").where("trait_id = ?", params[:id]).where("trait_id NOT IN (?) AND valuetype_id NOT IN (?)", Trait.joins(:traitclass).where("class_name = 'Contextual'").map(&:id), Valuetype.where(has_precision: false).map(&:id)).group(:specie_id, :resource_id, :location_id, :trait_id, :standard_id, :value).having("count(*) > 1")
+
+    puts @duplicates.length
+    puts "==============================="
 
     respond_to do |format|
       format.html { }
@@ -162,28 +142,15 @@ class TraitsController < ApplicationController
     end
   end
 
-  # GET /traits/new
   def new
     @trait = Trait.new
   end
 
-  # GET /traits/1/edit
   def edit
   end
 
-  # POST /traits
-  # POST /traits.json
   def create
     @trait = Trait.new(trait_params)
-    # methodology_ids =  params[:trait][:methodologies_attributes]
-    traitvalue_ids =  params[:trait][:traitvalues_attributes]
-
-    # if not methodology_ids.nil?
-    #   methodology_ids.keys().each do |k|
-    #     methodology = Methodology.find(methodology_ids[k]["id"])
-    #     @trait.methodologies << methodology if methodology_ids[k]["_destroy"] != "1" and not @trait.methodologies.include? methodology
-    #   end
-    # end
 
     if @trait.save
       redirect_to @trait, flash: {success: "Trait was successfully created." }
@@ -192,24 +159,7 @@ class TraitsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /traits/1
-  # PATCH/PUT /traits/1.json
-  def update
-    # methodology_ids =  params[:trait][:methodologies_attributes]
-    traitvalue_ids =  params[:trait][:traitvalues_attributes]
-
-    # @trait.methodologies.delete_all()
-    #@trait.traitvalues.delete_all()
-
-    # if not methodology_ids.nil?
-    #   methodology_ids.keys().each do |k|
-    #     method = Methodology.find(methodology_ids[k]["id"])
-    #     @trait.methodologies << method if ((methodology_ids[k]["_destroy"] != "1") and (not @trait.methodologies.include? method))
-        
-    #   end
-    # end
-    
-    
+  def update    
     if @trait.update(trait_params)
       redirect_to @trait, flash: {success: "Trait was successfully updated." }
     else
@@ -217,8 +167,6 @@ class TraitsController < ApplicationController
     end
   end
 
-  # DELETE /traits/1
-  # DELETE /traits/1.json
   def destroy
     @trait.destroy
     respond_to do |format|

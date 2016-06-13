@@ -4,6 +4,11 @@ class ValuetypesController < ApplicationController
 
   def index
     @valuetypes = Valuetype.all
+
+    respond_to do |format|
+      format.html
+      format.csv { send_data Valuetype.all.to_csv }      
+    end    
   end
 
   def new
