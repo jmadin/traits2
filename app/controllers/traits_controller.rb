@@ -33,7 +33,7 @@ class TraitsController < ApplicationController
 
   def overview
     query = Trait.all
-    query = query.where(:released => params[:released]) if not params[:released].blank?
+    query = query.where("released = ?", params[:released]) #if not params[:released].blank?
     @traits = query.all
 
     respond_to do |format|
@@ -42,18 +42,22 @@ class TraitsController < ApplicationController
   end
 
   def export
-    if params[:checked]
-      @observations = Observation.joins(:measurements).where(:measurements => {:trait_id => params[:checked]})
+    @observations = Observation.joins(:measurements).where(:measurements => {:trait_id => params[:checked]})
+    @observations = observation_filter(@observations)
+    if params[:checked] and @observations.present?
       send_zip(@observations)
     else
-      redirect_to traits_url, flash: {danger: "Nothing selected." }
+      redirect_to traits_url, flash: {danger: "Nothing to download." }
     end
   end
 
   def export_release
-    @observations = Observation.where(:access => 't').joins(:measurements).where(:measurements => {:trait_id => Trait.where(:released => 't')})
-
-    send_zip(@observations)
+    @observations = Observation.where(:access => true).joins(:measurements).where(:measurements => {:trait_id => Trait.where(:released => true)})
+    if @observations.present?
+      send_zip(@observations)
+    else
+      redirect_to releases_url, flash: {danger: "Nothing to release." }
+    end
   end
 
   def show
@@ -129,7 +133,8 @@ class TraitsController < ApplicationController
 
   def duplicates
 
-    @duplicates = Observation.joins(:measurements).select("specie_id, resource_id, location_id, trait_id, standard_id, value, group_concat(observation_id) as ids").where("trait_id = ?", params[:id]).where("trait_id NOT IN (?) AND valuetype_id NOT IN (?)", Trait.joins(:traitclass).where("class_name = 'Contextual'").map(&:id), Valuetype.where(has_precision: false).map(&:id)).group(:specie_id, :resource_id, :location_id, :trait_id, :standard_id, :value).having("count(*) > 1")
+    puts "==============================="
+    @duplicates = Observation.joins(:measurements).select("specie_id, resource_id, location_id, trait_id, standard_id, value, array_agg(observation_id) as ids").where("trait_id = ?", params[:id]).where("trait_id NOT IN (?) AND valuetype_id NOT IN (?)", Trait.joins(:traitclass).where("class_name = 'Contextual'").map(&:id), Valuetype.where(has_precision: false).map(&:id)).group(:specie_id, :resource_id, :location_id, :trait_id, :standard_id, :value).having("count(*) > 1")
 
     puts @duplicates.length
     puts "==============================="

@@ -1,7 +1,7 @@
 class Resource < ActiveRecord::Base
 
   belongs_to :user
-  has_many :observations
+  has_many :observations, :dependent => :destroy
 
   has_paper_trail
   

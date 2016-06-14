@@ -69,11 +69,12 @@ class MethodologiesController < ApplicationController
   end
 
   def export
-    if params[:checked]
-      @observations = Observation.where(:id => Measurement.where("methodology_id IN (?)", params[:checked]).map(&:observation_id))
+    @observations = Observation.where(:id => Measurement.where("methodology_id IN (?)", params[:checked]).map(&:observation_id))
+    @observations = observation_filter(@observations)
+    if params[:checked] and @observations.present?
       send_zip(@observations)                   
     else
-      redirect_to methodologies_url, flash: {danger: "Nothing selected." }
+      redirect_to methodologies_url, flash: {danger: "Nothing to download." }
     end
   end
 

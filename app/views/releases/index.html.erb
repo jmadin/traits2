@@ -1,8 +1,10 @@
 <div class="col-md-12">
   <%= render "shared/index_header" %>
 
-  <%= form_tag export_release_traits_path do %>
-    <%= submit_tag "Make Release Zip", {class: "btn btn-success pull-right"} %>
+  <% if logged_in? && current_user.admin? %>
+    <%= form_tag export_release_traits_path do %>
+      <%= submit_tag "Make Release Zip", {class: "btn btn-success pull-right"} %>
+    <% end %>
   <% end %>
   <br>
   <%= markdown File.open(Rails.root + "public/information/releases.md", 'r').read %>

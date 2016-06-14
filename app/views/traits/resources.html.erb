@@ -2,7 +2,7 @@
 
 <div class="col-md-12">
   <h1>
-    <% if @trait.traitclass.contextual %>
+    <% if @trait.traitclass and @trait.traitclass.contextual %>
       <span class="glyphicon glyphicon-eye-open" data-toggle="tooltip" data-placement="top" title="Contextual trait"></span>
     <% end %>
     <%= @trait.trait_name %>
@@ -18,13 +18,16 @@
         <%= link_to "Meta", meta_trait_path(@trait), class: "btn btn-default btn-xs" %>
         <%= link_to "Duplicates", duplicates_trait_path(@trait), class: "btn btn-default btn-xs" %>
         <%= link_to "Resources", resources_trait_path(@trait), class: "btn btn-default btn-xs active" %>
-        <%= link_to "Overview", overview_traits_path(:release_status => 't'), class: "btn btn-default btn-xs" %>
+        <%= link_to "Overview", overview_traits_path(:released => true), class: "btn btn-default btn-xs" %>
       <% end %>
     </div>
   </p>
 
   <div class="col-sm-12">
-    
+    <% if @resources.empty? %>
+      None
+    <% end %>
+
     <ul class="list-group">
       <% @resources.each do |resource| %>
         <li class="list-group-item">              

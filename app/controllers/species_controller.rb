@@ -28,11 +28,12 @@ class SpeciesController < ApplicationController
   end
 
   def export
-    if params[:checked]
-      @observations = Observation.where(:specie_id => params[:checked])
+    @observations = Observation.where(:specie_id => params[:checked])
+    @observations = observation_filter(@observations)
+    if params[:checked] and @observations.present?
       send_zip(@observations)          
     else
-      redirect_to species_url, flash: {danger: "Nothing selected." }
+      redirect_to species_url, flash: {danger: "Nothing to download." }
     end
   end
 

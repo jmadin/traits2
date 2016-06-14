@@ -57,7 +57,7 @@ class ResourcesController < ApplicationController
   end
 
   def duplicates
-    @duplicates = Observation.joins(:measurements).select("specie_id, resource_id, location_id, trait_id, standard_id, value, group_concat(observation_id) as ids").where("resource_id = ?", params[:id]).where("trait_id NOT IN (?) AND valuetype_id NOT IN (?)", Trait.joins(:traitclass).where("class_name = 'Contextual'").map(&:id), Valuetype.where(has_precision: false).map(&:id)).group(:specie_id, :resource_id, :location_id, :trait_id, :standard_id, :value).having("count(*) > 1")
+    @duplicates = Observation.joins(:measurements).select("specie_id, resource_id, location_id, trait_id, standard_id, value, array_agg(observation_id) as ids").where("resource_id = ?", params[:id]).where("trait_id NOT IN (?) AND valuetype_id NOT IN (?)", Trait.joins(:traitclass).where("class_name = 'Contextual'").map(&:id), Valuetype.where(has_precision: false).map(&:id)).group(:specie_id, :resource_id, :location_id, :trait_id, :standard_id, :value).having("count(*) > 1")
 
     respond_to do |format|
       format.html { }
@@ -235,11 +235,12 @@ class ResourcesController < ApplicationController
   end
 
   def export
-    if params[:checked]
-      @observations = Observation.where(:resource_id => params[:checked])
+    @observations = Observation.where(:resource_id => params[:checked])
+    @observations = observation_filter(@observations)
+    if params[:checked] and @observations.present?
       send_zip(@observations)                   
     else
-      redirect_to resources_url, flash: {danger: "Nothing selected." }
+      redirect_to resources_url, flash: {danger: "Nothing to download." }
     end
  end
 

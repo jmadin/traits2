@@ -28,11 +28,12 @@ class LocationsController < ApplicationController
   end
 
   def export
-    if params[:checked]
-      @observations = Observation.where(:location_id => params[:checked])
+    @observations = Observation.where(:location_id => params[:checked])
+    @observations = observation_filter(@observations)
+    if params[:checked] and @observations.present?
       send_zip(@observations)                   
     else
-      redirect_to locations_url, flash: {danger: "Nothing selected." }
+      redirect_to locations_url, flash: {danger: "Nothing to download." }
     end
   end
 

@@ -7,7 +7,7 @@
 	</h1>
 	<hr>
 
-	<% obs = Observation.where("access IS 't' AND (resource_id IS NULL OR resource_id = ?)", 0) %>
+	<% obs = Observation.where("access = ? AND (resource_id IS NULL OR resource_id = ?)", true, 0) %>
 	<% if !obs.blank? %>
 		<ul class="list-group">
 
@@ -34,7 +34,7 @@
 		</div>
 		<div class="col-md-2">
 			<%= form_tag overview_traits_path, :method => 'get' do %>
-			  <%= select_tag :release_status, options_for_select([['Ready for release', 't'], ['Not ready', 'f']], params[:release_status]), include_blank: false, onchange: "$(this).parent('form').submit();", class: "form-control" %>
+			  <%= select_tag :released, options_for_select([['Ready for release', true], ['Not ready', false]], params[:released]), include_blank: false, onchange: "$(this).parent('form').submit();", class: "form-control" %>
 			<% end %>
 		</div>
 		<div class="col-md-5">
@@ -75,7 +75,7 @@
 			</div>
 		</li>
 		
-		<% @traits.sort_by{ |h| h[:release_status] }.each do |trait| %>
+		<% @traits.sort_by{ |h| h[:trait_name] }.each do |trait| %>
 		  <li class="list-group-item">							
 				<div class="row">
 					<div class="col-md-2">
@@ -106,10 +106,10 @@
 
 				  </div>
 					<div class="col-md-3">
-					  <%= Observation.where("access IS 't' AND observations.id IN (?)", Measurement.where(:trait_id => trait.id).map(&:observation_id)).map(&:resource_id).uniq.join(", ") %>
+					  <%= Observation.where("access = ? AND observations.id IN (?)", true, Measurement.where(:trait_id => trait.id).map(&:observation_id)).map(&:resource_id).uniq.join(", ") %>
 				  </div>
 					<div class="col-md-1">
-					  <%= Measurement.where("trait_id = ?", trait.id).joins(:observation).where("access IS 't'").size %>
+					  <%= Measurement.where("trait_id = ?", trait.id).joins(:observation).where("access = ?", true).size %>
 				  </div>
 			  </div>
 		  </li>

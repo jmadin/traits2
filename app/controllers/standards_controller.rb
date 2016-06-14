@@ -36,11 +36,12 @@ class StandardsController < ApplicationController
   end
 
   def export
-    if params[:checked]
-      @observations = Observation.joins(:measurements).where(:measurements => {:standard_id => params[:checked]})
+    @observations = Observation.joins(:measurements).where(:measurements => {:standard_id => params[:checked]})
+    @observations = observation_filter(@observations)
+    if params[:checked] and @observations.present?
       send_zip(@observations)          
     else
-      redirect_to standards_url, flash: {danger: "Nothing selected." }
+      redirect_to standards_url, flash: {danger: "Nothing to download." }
     end
   end
 

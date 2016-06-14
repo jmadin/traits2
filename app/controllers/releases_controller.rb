@@ -23,10 +23,6 @@ class ReleasesController < ApplicationController
 
   def show
 
-    puts "HERE ========================================="
-    puts params[:id]
-    puts request.url
-
     if params[:id].include? "#{ENV["SITE_NAME"].downcase}_"
       respond_to do |format|
 

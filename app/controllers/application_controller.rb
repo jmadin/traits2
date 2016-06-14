@@ -90,7 +90,6 @@ class ApplicationController < ActionController::Base
 
 
   def download_observations(observations)
-
     if request.url.include? 'resources.csv'
       csv_string = export_resources(observations)
       filename = 'resources'
@@ -122,8 +121,8 @@ class ApplicationController < ActionController::Base
   end
 
   def export_data(observations)
+    ids = observations.map(&:id).join(',')
 
-    ids = observations.map(&:id).join(',')      
     observations = Observation.find_by_sql("SELECT 
       obs.id AS observation_id, 
       obs.access AS access, 
@@ -163,7 +162,7 @@ class ApplicationController < ActionController::Base
             ON mea.methodology_id = meth.id
       WHERE obs.id IN (#{ids})
       ORDER BY obs.id;")
-    
+
     header = ["observation_id", "access", "user_id", "specie_id", "specie_name", "location_id", "location_name", "latitude", "longitude", "resource_id", "resource_secondary_id", "measurement_id", "trait_id", "trait_name", "trait_class_name", "standard_id", "standard_unit", "methodology_id", "methodology_name", "value", "value_type_name", "precision", "precision_type_name", "precision_upper", "replicates", "notes"]
 
     csv_string = CSV.generate do |csv|
@@ -177,8 +176,6 @@ class ApplicationController < ActionController::Base
   end
 
   def send_zip(observations)
-
-    observations = observation_filter(observations)
 
     data_csv_string = export_data(observations)
     data_file_path = "public/data.csv"
