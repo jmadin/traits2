@@ -1,6 +1,6 @@
 <% provide(:title, 'Home') %>
 
-<div class="col-md-9">
+<div class="col-md-12">
   <div class="jumbotron" style="background: rgba(238, 238, 238, 0.8)!important;">
   	<h1><%= ENV["SITE_NAME"]%></h1>
     <br>
@@ -22,10 +22,10 @@
   </div>
 </div>
 
-<div class="col-md-3">
-  <a class="twitter-timeline" href="https://twitter.com/<%= ENV["TWITTER_SCREENNAME"] %>" data-widget-id="<%= ENV["TWITTER_ID"] %>">Tweets by @<%= ENV["TWITTER_SCREENNAME"] %></a>
+<!-- <div class="col-md-3">
+  <a class="twitter-timeline" href="https://twitter.com/<%#= ENV["TWITTER_SCREENNAME"] %>" data-widget-id="<%#= ENV["TWITTER_ID"] %>">Tweets by @<%#= ENV["TWITTER_SCREENNAME"] %></a>
   <script src="//platform.twitter.com/widgets.js"></script>
-</div>
+</div> -->
 
 
 <script type="text/javascript">
@@ -42,7 +42,7 @@
 
   var marker, i;
 
-  for (i = 0; i < locations.length; i++) {  
+  for (i = 0; i < locations.length; i++) {
     marker = new google.maps.Marker({
       position: new google.maps.LatLng(locations[i][1], locations[i][2]),
       map: map
@@ -56,4 +56,3 @@
     })(marker, i));
   }
 </script>
-

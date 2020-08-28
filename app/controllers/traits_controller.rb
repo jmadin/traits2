@@ -3,7 +3,7 @@ class TraitsController < ApplicationController
   before_action :set_trait, only: [:show, :edit, :update, :destroy, :duplicates, :meta, :resources]
   before_action :admin_user, only: :destroy
 
-  skip_before_filter :verify_authenticity_token, :only => [:update]
+  skip_before_action :verify_authenticity_token, :only => [:update]
 
   def index
     @search = Trait.search do

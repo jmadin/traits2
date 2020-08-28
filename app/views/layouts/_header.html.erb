@@ -44,7 +44,7 @@
 						</ul>
 		     	</li>
 				</ul>
-	
+
 				<ul class="nav navbar-nav navbar-right">
 					<% if logged_in? %>
 					  <li id="fat-menu" class="dropdown" style="text-align: left;">
@@ -61,7 +61,7 @@
 					      	<li><%= link_to "Change History", history_path %></li>
 				    			<% issues_count = Issue.all.size %>
 				    			<li><%= link_to "Issues <span class='badge pull-right'>#{issues_count}</span>".html_safe, issues_path %></li>
-					      	
+
 					      	<li class="divider"></li>
 
 									<li><%= link_to "Trait Classes", traitclasses_path %></li>
@@ -90,7 +90,7 @@
 						 	<li><%= link_to "Procedures", procedures_path %></li>
 						 	<li><%= link_to "Contributors", contributors_path %></li>
 						 	<li><%= link_to "Editors", editors_path %></li>
-						 
+
 		         	<% if logged_in? && current_user.editor? %>
 								<li class="divider"></li>
 		         		<li><%= link_to "Overview", overview_traits_path(:released => true) %></li>
@@ -116,5 +116,3 @@
 		</div>
 	</nav>
 </header>
-
-

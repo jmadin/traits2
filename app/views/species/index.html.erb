@@ -16,7 +16,7 @@
 
 		<ul class="list-group">
 	    <% @species.sort_by{ |h| h[:specie_name] }.each do |specie| %>
-			  <li class="list-group-item">							
+			  <li class="list-group-item">
 					<div class="row">
 		        <div class="col-sm-1" style="color: lightgrey;">
 		        	<%= specie.id %>
@@ -48,7 +48,7 @@
 
 					</div>
 				</li>
-	    <% end %>		
+	    <% end %>
     </ul>
 
     <%= will_paginate @species, :inner_window => 1, :outer_window => 0 %>
@@ -66,5 +66,3 @@
 <div class="col-sm-12">
 	Download full species list as a <%= link_to "csv", species_path(format: "csv", search: params[:search], page: params[:page], all: params[:all]) %>.
 </div>
-
-

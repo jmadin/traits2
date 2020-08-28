@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.2.3'
+ruby '2.7.1'
 
 gem 'rails'
 gem 'sass-rails'
@@ -10,6 +10,7 @@ gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder'
 gem 'jquery-turbolinks'
+gem 'webpacker'
 
 gem 'bootstrap-sass'
 gem 'bcrypt'
@@ -65,10 +66,11 @@ group :production do
 end
 
 group :development, :test do
-  
+
   gem 'minitest'
   gem 'spring'
   gem 'sqlite3'
+  gem 'listen'
 
 end
 
@@ -91,4 +93,3 @@ group :test do
 end
 
 gem 'sdoc', '~> 0.4.0',          group: :doc
-
