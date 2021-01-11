@@ -195,7 +195,7 @@ GEM
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     rdoc (4.3.0)
-    redcarpet (3.5.0)
+    redcarpet (3.5.1)
     request_store (1.5.0)
       rack (>= 1.4)
     roo (2.8.3)
