@@ -3,7 +3,7 @@ class TraitsController < ApplicationController
   before_action :set_trait, only: [:show, :edit, :update, :destroy, :duplicates, :meta, :resources]
   before_action :admin_user, only: :destroy
 
-  skip_before_filter :verify_authenticity_token, :only => [:update]
+  skip_before_action :verify_authenticity_token, :only => [:update]
 
   def index
     @search = Trait.search do
@@ -20,7 +20,7 @@ class TraitsController < ApplicationController
     respond_to do |format|
       format.html
       format.csv { send_data Trait.all.to_csv }
-    end    
+    end
   end
 
   def resources
@@ -38,7 +38,7 @@ class TraitsController < ApplicationController
 
     respond_to do |format|
       format.html
-    end    
+    end
   end
 
   def export
@@ -81,7 +81,7 @@ class TraitsController < ApplicationController
 
     @methodologies = Methodology.where(:id => Measurement.where("observation_id IN (?) AND trait_id = ?", @observations.map(&:id), @trait.id).map(&:methodology_id))
     @standards = Standard.where(:id => Measurement.where("observation_id IN (?) AND trait_id = ?", @observations.map(&:id), @trait.id).map(&:standard_id))
-    
+
     data_table = GoogleVisualr::DataTable.new
 
     if @trait.standard
@@ -141,7 +141,7 @@ class TraitsController < ApplicationController
 
     respond_to do |format|
       format.html { }
-      format.json { 
+      format.json {
         render json: { dups: @duplicates.length }
       }
     end
@@ -160,11 +160,11 @@ class TraitsController < ApplicationController
     if @trait.save
       redirect_to @trait, flash: {success: "Trait was successfully created." }
     else
-      render action: 'new' 
+      render action: 'new'
     end
   end
 
-  def update    
+  def update
     if @trait.update(trait_params)
       redirect_to @trait, flash: {success: "Trait was successfully updated." }
     else
@@ -191,5 +191,3 @@ class TraitsController < ApplicationController
       params.require(:trait).permit(:trait_name, :trait_description, :traitclass_id, :value_range, :standard_id, :user_id, :approved, :released, :methodologies, :hide, :log_data, traitvalues_attributes: [:id, :value_name, :value_description, :_destroy])
     end
 end
-
-

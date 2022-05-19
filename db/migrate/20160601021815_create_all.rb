@@ -1,4 +1,4 @@
-class CreateAll < ActiveRecord::Migration
+class CreateAll < ActiveRecord::Migration[6.1]
   def change
 
     create_table "issues", force: :cascade do |t|

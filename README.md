@@ -18,7 +18,7 @@ The below quick start guide was last updated for ruby-2.2.3.
         cp database.yml.sqlite database.yml  
         cp local_env.yml.example local_env.yml  
 
-4. Return to base directory and install gems
+4. Return to base directory and install gems (see Notes 1)
 
         cd ..
         bundle install
@@ -28,7 +28,7 @@ The below quick start guide was last updated for ruby-2.2.3.
         rake db:migrate
         rake db:seed
 
-6. Start solr search
+6. Start solr search (see Notes 2)
 
         rake sunspot:solr:start
         rake sunspot:solr:reindex
@@ -43,3 +43,17 @@ The below quick start guide was last updated for ruby-2.2.3.
         foobar
 
 9. Change password at ([http://localhost:3000/users/1/edit](http://localhost:3000/users/1/edit))
+
+### Notes
+
+
+1. The bundler will complain if you don't have postgres installed. Postgres is used for production, but you don't have to have it installed when developing on local machine, which uses
+
+https://wiki.postgresql.org/wiki/Homebrew
+
+
+
+2. On a Mac, you need to have JDK 8 installed. Easiest to do with `brew`
+
+        brew install adoptopenjdk/openjdk/adoptopenjdk8
+        java -version

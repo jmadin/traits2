@@ -3,8 +3,8 @@
 
 body { padding-top: 70px; }
 
-/*body { 
-  background: url(/images/home.png) no-repeat center center fixed; 
+/*body {
+  background: url(/images/home.png) no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -12,8 +12,8 @@ body { padding-top: 70px; }
 }
 */
 
-.home { 
-  background: url(/images/home.png) no-repeat center center fixed; 
+.home {
+  background: url(/images/home.png) no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -26,7 +26,7 @@ hr {
     border: 0;
     border-top: 1px solid #ccc;
     margin: 1em 0;
-    padding: 0; 
+    padding: 0;
 }
 
 :target:before {
@@ -37,16 +37,16 @@ hr {
 }
 
 .pagination {
-  margin: 0px !important; 
+  margin: 0px !important;
 }
 
 .pagination,  .pagination a {
-//  margin: 0px !important; 
-//  border: none !important; 
-//  padding-top: 5px !important; 
-//  padding-bottom: 5px !important; 
-//  padding-left: 10px !important; 
-//  padding-right: 10px !important; 
+//  margin: 0px !important;
+//  border: none !important;
+//  padding-top: 5px !important;
+//  padding-bottom: 5px !important;
+//  padding-left: 10px !important;
+//  padding-right: 10px !important;
 }
 
 .red {
@@ -78,6 +78,11 @@ a {
 
 /* Flexible iFrame */
 
+#map {
+  height: 300px;
+}
+
+
 .map-container {
     position: relative;
     padding-bottom: 36.25%;
@@ -85,9 +90,9 @@ a {
     height: 0;
     overflow: hidden;
 }
- 
-.map-container iframe,  
-.map-container object, 
+
+.map-container iframe,
+.map-container object,
 .map-container embed {
     position: absolute;
     top: 0;

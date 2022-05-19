@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.2.3'
+ruby '2.6.10'
 
 gem 'rails'
 gem 'sass-rails'
@@ -56,7 +56,7 @@ gem 'hirb'
 # for sharding database (main database and temporary database)
 #gem "ar-octopus", :git => "git://github.com/tchandy/octopus.git", :require => "octopus"
 
-gem 'pg',             '0.17.1'
+gem 'pg'#,             '0.17.1'
 
 # database setup (postgres), and for Heroku
 group :production do
@@ -65,7 +65,7 @@ group :production do
 end
 
 group :development, :test do
-  
+
   gem 'minitest'
   gem 'spring'
   gem 'sqlite3'
@@ -91,4 +91,3 @@ group :test do
 end
 
 gem 'sdoc', '~> 0.4.0',          group: :doc
-

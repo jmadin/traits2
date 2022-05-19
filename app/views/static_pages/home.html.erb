@@ -1,7 +1,7 @@
 <% provide(:title, 'Home') %>
 
-<div class="col-md-9">
-  <div class="jumbotron" style="background: rgba(238, 238, 238, 0.8)!important;">
+<div class="col-md-12">
+  <div class="jumbotron">
   	<h1><%= ENV["SITE_NAME"]%></h1>
     <br>
 
@@ -15,45 +15,41 @@
   		<p>Sign up to become a member and receive periodic news about the database. Sign up is not required to access public data.  Please email <a href="mailto:<%= ENV["SITE_EMAIL"] %>?subject=<%= ENV["SITE_NAME"] %> enquiry"><%= ENV["SITE_EMAIL"] %></a> with any comments, to become a contributor, or for more information.</p>
   	<% end %>
 
-    <p>
-      <div id="map-canvas" class="map-container"></div>
-    </p>
+    <p><div id="map"></div></p>
 
   </div>
 </div>
 
-<div class="col-md-3">
-  <a class="twitter-timeline" href="https://twitter.com/<%= ENV["TWITTER_SCREENNAME"] %>" data-widget-id="<%= ENV["TWITTER_ID"] %>">Tweets by @<%= ENV["TWITTER_SCREENNAME"] %></a>
-  <script src="//platform.twitter.com/widgets.js"></script>
-</div>
-
 
 <script type="text/javascript">
-  var locations = <%= raw @locations.map {|i| [i.location_name.to_s, i.latitude.to_s, i.longitude.to_s, i.id.to_s] } %>;
+  function initMap() {
+    var locations = <%= raw @locations.map {|i| [i.location_name.to_s, i.latitude.to_s, i.longitude.to_s, i.id.to_s] } %>;
 
-  var map = new google.maps.Map(document.getElementById('map-canvas'), {
-    zoom: 2,
-    center: new google.maps.LatLng(<%= ENV["MAP_LATITUDE"] %>, <%= ENV["MAP_LONGITUDE"] %>),
-    mapTypeId: google.maps.MapTypeId.SATELLITE,
-    streetViewControl: false
-  });
-
-  var infowindow = new google.maps.InfoWindow();
-
-  var marker, i;
-
-  for (i = 0; i < locations.length; i++) {  
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(locations[i][1], locations[i][2]),
-      map: map
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 2,
+      center: new google.maps.LatLng(<%= ENV["MAP_LATITUDE"] %>, <%= ENV["MAP_LONGITUDE"] %>),
+      mapTypeId: google.maps.MapTypeId.SATELLITE,
+      streetViewControl: false
     });
 
-    google.maps.event.addListener(marker, 'click', (function(marker, i) {
-      return function() {
-        infowindow.setContent('<a data-no-turbolink="true" href="locations/'+locations[i][3]+'">'+locations[i][0]+'</a>');
-        infowindow.open(map, marker);
-      }
-    })(marker, i));
+    var infowindow = new google.maps.InfoWindow();
+
+    var marker, i;
+
+    for (i = 0; i < locations.length; i++) {
+      marker = new google.maps.Marker({
+        position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+        map: map
+      });
+
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infowindow.setContent('<a data-no-turbolink="true" href="locations/'+locations[i][3]+'">'+locations[i][0]+'</a>');
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
+    }
   }
 </script>
 
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBJG1Hc3Z4RxhlbmvsHvzXakd_pCZjD_5I&callback=initMap" async defer></script>

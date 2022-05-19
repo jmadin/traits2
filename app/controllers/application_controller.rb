@@ -3,17 +3,17 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
   include SessionsHelper
-  
+
   WillPaginate.per_page = 25
   Sunspot.config.pagination.default_per_page = 25
 
-  before_filter :set_last_seen_at, if: proc { |p| logged_in? && (session[:last_seen_at] == nil || session[:last_seen_at] < 15.minutes.ago) }
+  before_action :set_last_seen_at, if: proc { |p| logged_in? && (session[:last_seen_at] == nil || session[:last_seen_at] < 15.minutes.ago) }
 
   def update_values
     @values = Trait.find(params[:trait_id]).value_range.split(',').map(&:strip)
     @standard = Standard.find(Trait.find(params[:trait_id]).standard_id)
   end
-  
+
   def observation_filter(observations)
     if logged_in?
       if current_user.admin?
@@ -54,13 +54,13 @@ class ApplicationController < ActionController::Base
   def contributor
       redirect_to(
         root_url, flash: {danger: "You need to be a contributor to access this area of the database." }
-      ) unless (logged_in? && (current_user.contributor? || current_user.admin?))  
+      ) unless (logged_in? && (current_user.contributor? || current_user.admin?))
   end
 
   def editor
       redirect_to(
         root_url,flash: {danger: "You need to be a editor to access this area of the database." }
-      ) unless (logged_in? && (current_user.editor? || current_user.admin?))      
+      ) unless (logged_in? && (current_user.editor? || current_user.admin?))
   end
 
   def enterer
@@ -68,7 +68,7 @@ class ApplicationController < ActionController::Base
     if @observation
       redirect_to(
         root_url, flash: { danger: "You can't edit or delete other peoples' observations." }
-      ) unless (logged_in? && ((@observation.user_id == current_user.id) || current_user.admin?))      
+      ) unless (logged_in? && ((@observation.user_id == current_user.id) || current_user.admin?))
     else
       redirect_to(
         root_url, flash: { danger: "You need to become a contributor to access this area of the database." }
@@ -97,7 +97,7 @@ class ApplicationController < ActionController::Base
       csv_string = export_data(observations)
       filename = 'data'
     end
-    send_data csv_string, 
+    send_data csv_string,
       :type => 'text/csv; charset=iso-8859-1; header=present', :stream => true,
       :disposition => "attachment; filename=#{filename}_#{Date.today.strftime('%Y%m%d')}.csv"
   end
@@ -105,8 +105,8 @@ class ApplicationController < ActionController::Base
   # NEW EXPORTER
 
   def export_resources(observations)
-  
-    ids = observations.map{|f| [f.resource_id, f.resource_secondary_id]}.uniq.compact      
+
+    ids = observations.map{|f| [f.resource_id, f.resource_secondary_id]}.uniq.compact
     resources = Resource.where(:id => ids)
 
     header = ["id", "author", "year", "title", "doi_isbn", "journal", "volume_pages"]
@@ -123,23 +123,23 @@ class ApplicationController < ActionController::Base
   def export_data(observations)
     ids = observations.map(&:id).join(',')
 
-    observations = Observation.find_by_sql("SELECT 
-      obs.id AS observation_id, 
-      obs.access AS access, 
-      obs.user_id, obs.specie_id, spe.specie_name, obs.location_id, loc.location_name, 
-      CASE WHEN loc.latitude=0 THEN NULL ELSE loc.latitude END AS latitude, 
-      CASE WHEN loc.longitude=0 THEN NULL ELSE loc.longitude END AS longitude, 
-      obs.resource_id, obs.resource_secondary_id, 
-      mea.id AS measurement_id, 
-      mea.trait_id, tra.trait_name, 
-      tcl.class_name AS trait_class_name, 
-      mea.standard_id, sta.standard_unit, 
+    observations = Observation.find_by_sql("SELECT
+      obs.id AS observation_id,
+      obs.access AS access,
+      obs.user_id, obs.specie_id, spe.specie_name, obs.location_id, loc.location_name,
+      CASE WHEN loc.latitude=0 THEN NULL ELSE loc.latitude END AS latitude,
+      CASE WHEN loc.longitude=0 THEN NULL ELSE loc.longitude END AS longitude,
+      obs.resource_id, obs.resource_secondary_id,
+      mea.id AS measurement_id,
+      mea.trait_id, tra.trait_name,
+      tcl.class_name AS trait_class_name,
+      mea.standard_id, sta.standard_unit,
       mea.methodology_id, meth.methodology_name,
-      mea.value, 
-      vty.value_type_name AS value_type_name, 
-      mea.precision, 
-      pty.precision_type_name AS precision_type_name, 
-      mea.precision_upper, mea.replicates, 
+      mea.value,
+      vty.value_type_name AS value_type_name,
+      mea.precision,
+      pty.precision_type_name AS precision_type_name,
+      mea.precision_upper, mea.replicates,
       mea.measurement_description AS notes
       FROM observations AS obs
         INNER JOIN species AS spe
@@ -180,11 +180,11 @@ class ApplicationController < ActionController::Base
     data_csv_string = export_data(observations)
     data_file_path = "public/data.csv"
     _file1 = File.open(data_file_path, "w") { |f| f << data_csv_string }
-    
+
     resources_csv_string = export_resources(observations)
     resources_file_path = "public/resources.csv"
     _file2 = File.open(resources_file_path, "w") { |f| f << resources_csv_string }
-    
+
     # Combine file1 and file2 into zip file
     zipfile_name = 'zippedfiles.zip'
     Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
@@ -203,7 +203,7 @@ class ApplicationController < ActionController::Base
   end
 
   def upload_csv
-    @name = params[:controller]  
+    @name = params[:controller]
   end
 
   private

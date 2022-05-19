@@ -21,7 +21,7 @@ Traits::Application.routes.draw do
   match '/resources/:id/expunge',     to: 'resources#expunge',    via: 'get', :as => :expunge_resource
   match '/resources/:id/update',     to: 'resources#update',    via: 'get', :as => :update_resource
 
-  resources :duplicates 
+  resources :duplicates
 
   resources :releases
 
@@ -37,14 +37,14 @@ Traits::Application.routes.draw do
   # match '/imports/approve', to: 'imports#approve', via: ['get', 'post'] , :as => :approve
   match '/imports/:name', to: 'imports#create', :via => :post, :as => :upload
   get '/imports/:name', to: 'imports#new'
-  
+
   match '/search/json_completion', to: 'search#json_completion', via: 'get', as: 'json_completion'
-  
+
   resources :imports
-  resources :search 
+  resources :search
   resources :synonyms
 
-  
+
   get '/history', to:'versions#index'
   get '/history/:version_id', to: 'versions#show'
   post '/revert/:version_id', to: 'versions#revert_back'
@@ -54,13 +54,13 @@ Traits::Application.routes.draw do
   get '/resources/:id/resources', to: 'resources#show'
   get '/releases/:id/resources', to: 'releases#show'
 
-  
+
   get '/resources/status', to: 'resources#status'
 
   # match '/duplicate/:id',     to: 'static_pages#duplicate',    via: 'get', :as => :duplicate_meta
 # get '/meta/:ids', to: 'static_pages#show'
 
-  
+
   resources :imports
 
   resources :methodologies
@@ -90,18 +90,18 @@ Traits::Application.routes.draw do
     post :export, :on => :collection
   end
 
-  
+
   resources :standards do
     post :export, :on => :collection
   end
 
-  resources :measurements 
+  resources :measurements
 
   resources :issues
 
   resources :observation_imports
 
-  resources :observations do  
+  resources :observations do
     resources :issues
 
       post :update_multiple, :on => :collection
@@ -115,7 +115,7 @@ Traits::Application.routes.draw do
       get :update_random, :on => :member
 
   end
-  
+
   resources :traits do
     post :export, :on => :collection
     post :export_release, :on => :collection
@@ -123,10 +123,10 @@ Traits::Application.routes.draw do
 
   resources :entities
 
-  resources :users do  
+  resources :users do
       post :update_multiple, :on => :collection
   end
-  
+
   resources :sessions,      only: [:new, :create, :destroy]
 
 
