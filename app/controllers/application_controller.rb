@@ -76,7 +76,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-
   # get ip of the user for versioning database
   def info_for_paper_trail
     # Save additional info

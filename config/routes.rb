@@ -1,3 +1,4 @@
+
 Traits::Application.routes.draw do
 
   resources :precisiontypes

@@ -294,6 +294,7 @@ DEPENDENCIES
   jbuilder
   jquery-rails
   jquery-turbolinks
+  listen
   minitest
   paper_trail
   pg
@@ -316,6 +317,7 @@ DEPENDENCIES
   sunspot_solr
   turbolinks
   uglifier
+  webpacker
   will_paginate
   zip-zip
 

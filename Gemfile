@@ -10,6 +10,7 @@ gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder'
 gem 'jquery-turbolinks'
+gem 'webpacker'
 
 gem 'bootstrap-sass'
 gem 'bcrypt'
@@ -69,6 +70,7 @@ group :development, :test do
   gem 'minitest'
   gem 'spring'
   gem 'sqlite3'
+  gem 'listen'
 
 end
 
