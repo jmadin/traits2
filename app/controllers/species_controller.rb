@@ -12,7 +12,7 @@ class SpeciesController < ApplicationController
     @search = Specie.search do
       fulltext params[:search]
       order_by :specie_name_sortable, :asc
-      
+
       if params[:all]
         paginate page: params[:page], per_page: 9999
       else
@@ -24,14 +24,14 @@ class SpeciesController < ApplicationController
     respond_to do |format|
       format.html
       format.csv { send_data get_specie_csv }
-    end    
+    end
   end
 
   def export
     @observations = Observation.where(:specie_id => params[:checked])
     @observations = observation_filter(@observations)
     if params[:checked] and @observations.present?
-      send_zip(@observations)          
+      send_zip(@observations)
     else
       redirect_to species_url, flash: {danger: "Nothing to download." }
     end
@@ -102,7 +102,7 @@ class SpeciesController < ApplicationController
     if @specie.save
       redirect_to @specie, flash: {success: "Species was successfully created." }
     else
-      render action: 'new' 
+      render action: 'new'
     end
   end
 
@@ -194,5 +194,5 @@ class SpeciesController < ApplicationController
     def specie_params
       params.require(:specie).permit(:specie_name, :specie_description, :aphia_id, :user_id, :approved, synonyms_attributes: [:id, :synonym_name, :synonym_description, :_destroy])
     end
-    
+
 end

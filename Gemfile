@@ -69,7 +69,7 @@ group :development, :test do
 
   gem 'minitest'
   gem 'spring'
-  gem 'sqlite3'
+  # gem 'sqlite3'
   gem 'listen'
 
 end

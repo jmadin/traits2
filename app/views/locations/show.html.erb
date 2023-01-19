@@ -40,7 +40,7 @@
       <font style="color:lightgrey;">No record</font>
     <% end %>
   </p>
-  
+
 
   <%= render "shared/description", :description => @location.location_description %>
 
@@ -70,9 +70,9 @@
 <% if @location.latitude.present? and @location.longitude.present? %>
   <div class="col-md-6" data-no-turbolink>
 <ul class="list-group">
-<li class="list-group-item">              
+<li class="list-group-item">
     <% if @location.location_name != "Global" %>
-      <div id="map" data-no-turbolink></div> 
+      <div id="map" data-no-turbolink></div>
     <% end %>
 </li>
 </ul>
@@ -112,8 +112,4 @@
   }
 </script>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBJG1Hc3Z4RxhlbmvsHvzXakd_pCZjD_5I&callback=initMap" async defer></script>
-
-
-
-
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDOPuewUPfHv6zEi-3OheljuleU6TuqbTA&callback=initMap" async defer></script>

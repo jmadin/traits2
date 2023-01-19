@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 class CreateAll < ActiveRecord::Migration[6.1]
-=======
-class CreateAll < ActiveRecord::Migration[6.0]
->>>>>>> 88a678fcd988716169fb4d56330bc2f380eb22b9
   def change
 
     create_table "issues", force: :cascade do |t|
