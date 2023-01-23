@@ -30,8 +30,5 @@ module Traits
         ENV[key.to_s] = value
       end if File.exists?(env_file)
     end
-
-    config.autoloader = :classic
-
   end
 end
