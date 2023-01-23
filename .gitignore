@@ -1,5 +1,7 @@
 # Ignore bundler config.
 
+config/sunspot.yml
+
 .secret
 .DS_Store
 # Ignore bundler config.
