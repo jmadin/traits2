@@ -31,5 +31,7 @@ module Traits
       end if File.exists?(env_file)
     end
 
+    config.autoloader = :classic
+
   end
 end
