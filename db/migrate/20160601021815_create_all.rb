@@ -178,8 +178,8 @@ class CreateAll < ActiveRecord::Migration[6.1]
       t.string   "class_name"
       t.text     "class_description"
       t.boolean  "contextual"
-      t.datetime "created_at",        null: false
-      t.datetime "updated_at",        null: false
+      t.datetime "created_at"
+      t.datetime "updated_at"
     end
 
     add_index "traitclasses", ["user_id"], name: "index_traitclasses_on_user_id"
