@@ -148,6 +148,8 @@ GEM
     mini_mime (1.1.2)
     mini_portile2 (2.8.1)
     minitest (5.17.0)
+    net-http (0.3.2)
+      uri
     net-imap (0.3.4)
       date
       net-protocol
@@ -283,6 +285,7 @@ GEM
       concurrent-ruby (~> 1.0)
     uglifier (4.2.0)
       execjs (>= 0.3.0, < 3)
+    uri (0.12.0)
     wasabi (3.8.0)
       addressable
       httpi (~> 3.0)
@@ -322,6 +325,7 @@ DEPENDENCIES
   jquery-turbolinks
   listen
   minitest
+  net-http
   paper_trail
   pg
   progress_bar

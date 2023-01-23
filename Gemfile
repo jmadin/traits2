@@ -2,6 +2,8 @@ source 'https://rubygems.org'
 
 ruby '2.7.7'
 
+gem 'net-http'
+
 gem 'rails'
 gem 'sass-rails'
 gem 'uglifier'
