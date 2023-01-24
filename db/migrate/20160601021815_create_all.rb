@@ -222,8 +222,8 @@ class CreateAll < ActiveRecord::Migration[6.1]
       t.string   "last_name"
       t.string   "institution"
       t.string   "email"
-      t.datetime "created_at",
-      t.datetime "updated_at",
+      t.datetime "created_at"
+      t.datetime "updated_at"
       t.string   "password_digest"
       t.string   "remember_digest"
       t.boolean  "admin",             default: false
