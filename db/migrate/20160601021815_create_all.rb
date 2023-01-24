@@ -102,8 +102,8 @@ class CreateAll < ActiveRecord::Migration[6.1]
       t.string   "precision_type_name"
       t.text     "precision_type_description"
       t.boolean  "has_range"
-      t.datetime "created_at",                 null: false
-      t.datetime "updated_at",                 null: false
+      t.datetime "created_at",
+      t.datetime "updated_at",
     end
 
     add_index "precisiontypes", ["user_id"], name: "index_precisiontypes_on_user_id"
@@ -222,8 +222,8 @@ class CreateAll < ActiveRecord::Migration[6.1]
       t.string   "last_name"
       t.string   "institution"
       t.string   "email"
-      t.datetime "created_at",                        null: false
-      t.datetime "updated_at",                        null: false
+      t.datetime "created_at",
+      t.datetime "updated_at",
       t.string   "password_digest"
       t.string   "remember_digest"
       t.boolean  "admin",             default: false
