@@ -61,18 +61,16 @@
 
 </div>
 
-<% if @location.latitude.present? and @location.longitude.present? %>
+
+<% if not @locations.empty? and not @locations.map(&:id).include? 1 %>
   <div class="col-md-6" data-no-turbolink>
-<ul class="list-group">
-<li class="list-group-item">
-    <% if @location.location_name != "Global" %>
-      <div id="map" data-no-turbolink></div>
-    <% end %>
-</li>
-</ul>
+    <ul class="list-group">
+    <li class="list-group-item">
+      <div id="map"></div>
+    </li>
+    </ul>
   </div>
 <% end %>
-
 
 <div class="col-md-12">
 
@@ -113,21 +111,32 @@
 
 <script type="text/javascript">
   function initMap() {
-    var loc = <%= raw [@location.location_name.to_s, @location.latitude.to_s, @location.longitude.to_s, @location.id.to_s] %>;
+    var locations = <%= raw @locations.map {|i| [i.location_name.to_s, i.latitude.to_s, i.longitude.to_s, i.id.to_s] } %>;
 
     var map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 10,
-      center: new google.maps.LatLng(loc[1], loc[2]),
+      zoom: 1,
+      center: new google.maps.LatLng(<%= ENV["MAP_LATITUDE"] %>, <%= ENV["MAP_LONGITUDE"] %>),
       mapTypeId: google.maps.MapTypeId.SATELLITE,
       streetViewControl: false
     });
 
     var infowindow = new google.maps.InfoWindow();
 
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(loc[1], loc[2]),
-      map: map
-    });
+    var marker, i;
+
+    for (i = 0; i < locations.length; i++) {
+      marker = new google.maps.Marker({
+        position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+        map: map
+      });
+
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infowindow.setContent('<a data-no-turbolink="true" href="locations/'+locations[i][3]+'">'+locations[i][0]+'</a>');
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
+    }
   }
 </script>
 
