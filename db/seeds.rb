@@ -9,7 +9,7 @@ users = User.create!([
 Valuetype.create!([
   {user_id: 1, value_type_name: "Raw value", value_type_description: "Value as measured by observer.", has_precision: false},
   {user_id: 1, value_type_name: "Mean", value_type_description: "The mean of raw values as measured by observer. Allows for precision.", has_precision: true},
-  {user_id: 1, value_type_name: "Range", value_type_description: "The range of raw values as measured by observer. Allows for precision.", has_precision: true}
+  {user_id: 1, value_type_name: "Median", value_type_description: "The median of raw values or range as measured by observer. Allows for precision.", has_precision: true}
 ])
 
 Precisiontype.create!([
