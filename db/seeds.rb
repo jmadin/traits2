@@ -2,8 +2,8 @@
 puts "********Seeding Data Start************"
 
 users = User.create!([
-  {first_name: "Daniel", last_name: "Gomez Gras", email: "danielgomezgras@ucm.es", password: "coral", password_confirmation: "corals", contributor: true, editor: true, admin: true, activated: true, activated_at: Time.zone.now},
-  {first_name: "Joshua", last_name: "Madin", email: "jmadin@hawaii.edu", password: "coral", password_confirmation: "corals", contributor: true, editor: true, admin: true, activated: true, activated_at: Time.zone.now}
+  {first_name: "Daniel", last_name: "Gomez Gras", email: "danielgomezgras@ucm.es", password: "corals", password_confirmation: "corals", contributor: true, editor: true, admin: true, activated: true, activated_at: Time.zone.now},
+  {first_name: "Joshua", last_name: "Madin", email: "jmadin@hawaii.edu", password: "corals", password_confirmation: "corals", contributor: true, editor: true, admin: true, activated: true, activated_at: Time.zone.now}
 ])
 
 Valuetype.create!([
