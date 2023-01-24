@@ -65,8 +65,8 @@
 <% if not @locations.empty? and not @locations.map(&:id).include? 1 %>
   <div class="col-md-6" data-no-turbolink>
     <ul class="list-group">
-    <li class="list-group-item">              
-    <div id="map-canvas" class="map-container" data-no-turbolink></div> 
+    <li class="list-group-item">
+    <div id="map-canvas" class="map-container" data-no-turbolink></div>
     </li>
     </ul>
   </div>
@@ -87,11 +87,11 @@
 	<ul class="nav nav-tabs">
 		<% if params[:secondary] %>
 			<% @observations = @secondary %>
-		  <li role="presentation"><%= link_to 'Primary', resource_path(@resource) %></li>		
+		  <li role="presentation"><%= link_to 'Primary', resource_path(@resource) %></li>
 		  <li role="presentation" class="active"><%= link_to 'Secondary', resource_path(@resource, secondary: true) %></li>
 	  <% else %>
 			<% @observations = @primary %>
-		  <li role="presentation" class="active"><%= link_to 'Primary', resource_path(@resource) %></li>		
+		  <li role="presentation" class="active"><%= link_to 'Primary', resource_path(@resource) %></li>
 		  <li role="presentation"><%= link_to 'Secondary', resource_path(@resource, secondary: true) %></li>
 		<% end %>
 	</ul>
@@ -105,7 +105,7 @@
 		<%= render "shared/observations" %>
 		<br>
 		<%= will_paginate @observations, :inner_window => 1, :outer_window => 0 %>
-	<% end %>  
+	<% end %>
 
 </div>
 
@@ -128,10 +128,10 @@
   var marker, i;
   var bounds = new google.maps.LatLngBounds();
 
-  for (i = 0; i < locations.length; i++) {  
-    
+  for (i = 0; i < locations.length; i++) {
+
     var content = '<a data-no-turbolink="true" href="/locations/'+locations[i][3]+'">'+locations[i][0]+'</a>';
-    
+
     marker = new google.maps.Marker({
       position: new google.maps.LatLng(locations[i][1], locations[i][2]),
       map: map
@@ -151,3 +151,4 @@
 
 </script>
 
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV["GOOGLE_API"] %>&callback=initMap" async defer></script>
